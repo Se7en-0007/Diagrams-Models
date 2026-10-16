@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Temperate Cyclone – 3D Block Diagram</title>
+<style>
+:root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{height:100%;margin:0;background:#dfe9f2;color:#10202f;font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#ui{position:fixed;left:0;right:0;bottom:0;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(rgba(10,20,32,0),rgba(10,20,32,.93) 40%);color:#eef4fa}
+#cap h2{margin:0 0 2px;font-size:17px}#cap p{margin:0 0 8px;font-size:13px;line-height:1.4;opacity:.88;max-width:780px}
+#bar{display:flex;gap:6px;flex-wrap:wrap}
+button{background:#22364f;color:#eef4fa;border:1px solid #46688d;border-radius:8px;padding:8px 12px;font-size:13px;cursor:pointer}
+button.on{background:#e8742a;border-color:#ffa564;color:#111;font-weight:600}
+#hint{position:fixed;top:calc(8px + env(safe-area-inset-top,0px));left:12px;font-size:12px;color:#26405a}
+</style></head><body>
+<canvas id="c"></canvas>
+<div id="hint">Drag to rotate · red arrows = warm air rising · blue = cold air curving round the Low</div>
+<div id="ui"><div id="cap"><h2></h2><p></p></div><div id="bar"></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// chain: 5 ground points (x,z) west→east; north = -z (cold side), south = +z (warm side). Apex = point 3 (index 2).
+const S=[
+{t:"1 · Stationary front — frontogenesis",d:"Cold polar easterlies (north) and warm westerlies (south) blow in opposite directions parallel to a straight front. No lifting, no low.",
+ p:[-8,0,-4,0,0,0,4,0,8,0],rise:.05,swirl:0,lift:0,fade:1,cloud:0,occ:0,eq:0},
+{t:"2 · Wave stage — cyclone is born",d:"A kink develops. Warm air bulges north (warm front, red semicircles) while cold air pushes south on the west (cold front, blue triangles). Pressure falls at the apex.",
+ p:[-8,.3,-4.6,1.2,-1,-1.3,3,-.3,8,.1],rise:.45,swirl:.3,lift:0,fade:1,cloud:.2,occ:0,eq:0},
+{t:"3 · Mature stage — Low is well formed",d:"Cold air wraps counter-clockwise around the Low. Warm air rises steeply along the cold front and gently over the warm front: clouds and rain.",
+ p:[-5.4,5,-3.4,2.7,0,-2.8,4,-.8,8,0],rise:1,swirl:.6,lift:0,fade:1,cloud:.8,occ:0,eq:0},
+{t:"4 · Occlusion begins",d:"The faster cold front overtakes the warm front. The warm sector is squeezed into a narrow wedge and pushed up off the ground, starting at the Low.",
+ p:[-2.4,5,-.9,2.4,1.2,-3.2,4,-1.4,8,-.2],rise:.9,swirl:.85,lift:.9,fade:1,cloud:1,occ:.5,eq:0},
+{t:"5 · Occluded front — peak and decay",d:"Warm air is completely lifted above the ground. Cold air curls tightly round the Low in a spiral and the system starts to fill.",
+ p:[2,5,2.3,2.2,1,-3.6,4.2,-1.8,8,-.4],rise:.5,swirl:1,lift:2.2,fade:.8,cloud:1,occ:1,eq:.2},
+{t:"6 · Frontolysis — fronts dissolve",d:"The temperature contrast is erased. The fronts fade, the warm air aloft mixes away, and only a weak curved cold-air circulation remains.",
+ p:[2,5,2.3,2.2,1,-3.6,4.2,-1.8,8,-.4],rise:0,swirl:.7,lift:3.7,fade:0,cloud:.2,occ:1,eq:1}
+];
+const W=8,D=5,H=5,cv=document.getElementById('c'),R=new THREE.WebGLRenderer({canvas:cv,antialias:true});
+const sc=new THREE.Scene();sc.background=new THREE.Color(0xdfe9f2);
+const cam=new THREE.PerspectiveCamera(40,1,.1,100),root=new THREE.Group();sc.add(root);
+sc.add(new THREE.HemisphereLight(0xffffff,0x6a7a55,.95));const dl=new THREE.DirectionalLight(0xffffff,.7);dl.position.set(-6,12,10);sc.add(dl);
+function size(){R.setSize(innerWidth,innerHeight);R.setPixelRatio(Math.min(devicePixelRatio,2));cam.aspect=innerWidth/innerHeight;
+ const z=innerWidth<innerHeight?36:24;cam.position.set(0,7.5,z);cam.lookAt(0,1.2,0);cam.updateProjectionMatrix()}
+addEventListener('resize',size);size();
+// terrain
+const tg=new THREE.PlaneGeometry(2*W,2*D,40,26);tg.rotateX(-Math.PI/2);const pa=tg.attributes.position,col=[];
+for(let i=0;i<pa.count;i++){const x=pa.getX(i),z=pa.getZ(i),n=Math.sin(x*.9)*Math.cos(z*1.1)+.5*Math.sin(x*2.1+z*1.7);
+ pa.setY(i,n*.05);const g=.5+.18*n,c=new THREE.Color().setHSL(.25-.04*n,.4,.34+.08*n);if(z<-3.2)c.lerp(new THREE.Color(0x7d8a5e),.5);col.push(c.r,c.g,c.b)}
+tg.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
+root.add(new THREE.Mesh(tg,new THREE.MeshLambertMaterial({vertexColors:true})));
+const slab=new THREE.Mesh(new THREE.BoxGeometry(2*W,.7,2*D),new THREE.MeshLambertMaterial({color:0x6b4a2c}));slab.position.y=-.38;root.add(slab);
+const fr=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(2*W,H,2*D)),new THREE.LineBasicMaterial({color:0x5d7f9e}));fr.position.y=H/2;root.add(fr);
+// volumes
+const cM=new THREE.MeshBasicMaterial({color:0x4a8fe0,transparent:true,opacity:.3,depthWrite:false}),
+ wM=new THREE.MeshBasicMaterial({color:0xff6a4a,transparent:true,opacity:.3,depthWrite:false}),
+ uM=new THREE.MeshBasicMaterial({color:0x4a8fe0,transparent:true,opacity:.3,depthWrite:false});
+const cold=new THREE.Mesh(new THREE.BufferGeometry(),cM),warm=new THREE.Mesh(new THREE.BufferGeometry(),wM),under=new THREE.Mesh(new THREE.BufferGeometry(),uM);
+[cold,warm,under].forEach(m=>{m.rotation.x=-Math.PI/2;root.add(m)});
+// frontal surface ribbon
+const rg=new THREE.BufferGeometry(),rp=new Float32Array(30),rc=new Float32Array(30);
+rg.setAttribute('position',new THREE.BufferAttribute(rp,3));rg.setAttribute('color',new THREE.BufferAttribute(rc,3));
+const ix=[];for(let i=0;i<4;i++){const a=2*i,b=2*i+1,c=2*i+2,d=2*i+3;ix.push(a,b,c,b,d,c)}rg.setIndex(ix);
+const rm=new THREE.MeshBasicMaterial({vertexColors:true,transparent:true,opacity:.5,side:THREE.DoubleSide,depthWrite:false});root.add(new THREE.Mesh(rg,rm));
+// ground front symbols
+const N=30,MK=[],mB=new THREE.MeshLambertMaterial({color:0x1a46c8}),mR=new THREE.MeshLambertMaterial({color:0xd81e1e}),mP=new THREE.MeshLambertMaterial({color:0x7a22b0});
+for(let i=0;i<N;i++){const t=new THREE.Mesh(new THREE.ConeGeometry(.26,.42,3),mB),r=new THREE.Mesh(new THREE.SphereGeometry(.24,12,8,0,6.3,0,1.57),mR),p=new THREE.Mesh(new THREE.SphereGeometry(.24,12,8,0,6.3,0,1.57),mP);root.add(t,r,p);MK.push({t,r,p})}
+function lab(txt,c,w){const k=document.createElement('canvas');k.width=512;k.height=128;const x=k.getContext('2d');x.font='bold 64px sans-serif';x.textAlign='center';x.lineWidth=10;x.strokeStyle='rgba(255,255,255,.85)';x.strokeText(txt,256,84);x.fillStyle=c;x.fillText(txt,256,84);
+ const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(k),transparent:true,depthTest:false}));s.scale.set(w*4,w,1);root.add(s);return s}
+const lC=lab('Cold','#1a4fb8',1.1),lW=lab('Warm','#c0301c',1.1),lL=lab('L','#c00',1.6),lCF=lab('Cold front','#1a46c8',.8),lWF=lab('Warm front','#c01818',.8);
+// clouds
+const CL=[],cmat=new THREE.MeshLambertMaterial({color:0xffffff,transparent:true,opacity:.75});
+for(let i=0;i<22;i++){const g=new THREE.Group();for(let j=0;j<3;j++){const s=new THREE.Mesh(new THREE.SphereGeometry(r_(.35,.6),10,8),cmat);s.position.set(r_(-.5,.5),r_(-.1,.2),r_(-.4,.4));g.add(s)}
+ root.add(g);CL.push({g,k:i%4<2?2:3,o:[r_(-2.6,2.6),r_(4.1,4.7),r_(-1.6,1.6)]})}
+function r_(a,b){return a+Math.random()*(b-a)}
+// state
+const cur=S[0].p.slice(),st={rise:0,swirl:0,lift:0,fade:1,cloud:0,occ:0,eq:0};let idx=0;
+const poly=(c,s)=>{const a=[];for(let i=0;i<5;i++)a.push([c[2*i],c[2*i+1]]);a.push([W,s*D],[-W,s*D]);return a};
+function geo(a,h){const sh=new THREE.Shape();a.forEach((p,i)=>i?sh.lineTo(p[0],-p[1]):sh.moveTo(p[0],-p[1]));return new THREE.ExtrudeGeometry(sh,{depth:Math.max(.001,h),bevelEnabled:false})}
+function inside(x,z,a){let o=false;for(let i=0,j=a.length-1;i<a.length;j=i++){const[xi,zi]=a[i],[xj,zj]=a[j];if((zi>z)!=(zj>z)&&x<(xj-xi)*(z-zi)/(zj-zi)+xi)o=!o}return o}
+const cA=new THREE.Color(0x4a8fe0),wA=new THREE.Color(0xff6a4a),eqC=new THREE.Color(0x7fa6cf);let polyW=poly(cur,1);
+function rebuild(){
+ polyW=poly(cur,1);const pN=poly(cur,-1);
+ cold.geometry.dispose();cold.geometry=geo(pN,H);warm.geometry.dispose();warm.geometry=geo(polyW,H-st.lift);warm.position.y=st.lift;
+ under.geometry.dispose();under.geometry=geo(polyW,st.lift);under.visible=st.lift>.05;
+ cM.color.copy(cA).lerp(eqC,st.eq);uM.color.copy(cM.color);wM.color.copy(wA).lerp(eqC,st.eq);wM.opacity=.3*(1-.7*st.eq);
+ // ribbon
+ const P=[];for(let i=0;i<5;i++)P.push([cur[2*i],cur[2*i+1]]);const off=[1.2,1.2,1.4,3.2,3.2];
+ const warmC=new THREE.Color(0xe0402c),coldC=new THREE.Color(0x2a5fd0),occC=new THREE.Color(0x8a3ac0);
+ for(let i=0;i<5;i++){const a=P[Math.max(0,i-1)],b=P[Math.min(4,i+1)];let dx=b[0]-a[0],dz=b[1]-a[1];const l=Math.hypot(dx,dz)||1,nx=dz/l,nz=-dx/l;
+  const k=Math.min(1,Math.abs(nz)+.35);const ox=P[i][0]+nx*off[i]*(1-.4*st.occ),oz=P[i][1]+nz*off[i]*(1-.4*st.occ);
+  rp.set([P[i][0],.03,P[i][1],ox,4,oz],6*i/3*3/1);
+  const c=i<2?coldC.clone():i==2?(st.occ>.4?occC:warmC).clone():warmC.clone();if(i<2&&st.occ>.5&&i==1)c.lerp(occC,st.occ);
+  rc.set([c.r,c.g,c.b,c.r,c.g,c.b],6*i)}
+ rg.attributes.position.needsUpdate=rg.attributes.color.needsUpdate=true;rm.opacity=.5*st.fade;
+ // markers
+ const L=[0];for(let i=0;i<4;i++)L.push(L[i]+Math.hypot(P[i+1][0]-P[i][0],P[i+1][1]-P[i][1]));
+ MK.forEach((m,n)=>{const s=n/(N-1)*L[4];let i=0;while(i<3&&s>L[i+1])i++;const u=(s-L[i])/((L[i+1]-L[i])||1),x=P[i][0]+(P[i+1][0]-P[i][0])*u,z=P[i][1]+(P[i+1][1]-P[i][1])*u;
+  const isCold=s<L[2],alt=st.occ>.5&&n%2==1&&s>L[1]*.6&&s<L[2]+L[1]*.3;
+  [m.t,m.r,m.p].forEach(o=>{o.position.set(x,o.geometry.type=='ConeGeometry'?.21:.02,z);o.visible=false;o.scale.setScalar(Math.max(.001,st.fade))});
+  const edge=Math.abs(x)>W-.1;
+  if(edge&&false)return;
+  if(isCold){(alt?m.p:m.t).visible=true}else m.r.visible=true});
+ lCF.visible=lWF.visible=st.fade>.3;
+ const q=(i,dy)=>[P[i][0],dy,P[i][1]];lL.position.set(P[2][0],H+.5,P[2][1]);lL.visible=st.fade>.2||true;
+ lCF.position.set(P[1][0]-.7,H+.2,P[1][1]-.7);lWF.position.set(P[3][0]+.6,H+.2,P[3][1]-.7);
+ lC.position.set(-5.5,H+.6,-3);lW.position.set(5.2,Math.max(2,st.lift+.6),3.4);lW.visible=st.eq<.6;
+ CL.forEach(c=>{const p=P[c.k];c.g.position.set(p[0]+c.o[0],c.o[1],p[1]+c.o[2]);c.g.scale.setScalar(Math.max(.001,st.cloud))})}
+// particles
+const up=new THREE.Vector3(0,1,0),PT=[],tmp=new THREE.Vector3();
+function mk(type){const c={w:0xd81818,c:0x2a6fe8}[type],z=type=='w'?1.5:1.15;
+ const m=new THREE.Mesh(new THREE.ConeGeometry(.17*z,.62*z,8),new THREE.MeshLambertMaterial({color:c}));root.add(m);const o={m,type,v:new THREE.Vector3(),age:0,life:r_(3,7)};PT.push(o);spawn(o,true)}
+function vel(o){const p=o.m.position,ax=cur[4],az=cur[5],rx=p.x-ax,rz=p.z-az,r=Math.hypot(rx,rz)||1,s=st.swirl,f=Math.min(1,r/1.6)*Math.exp(-r/8)*3.6;
+ if(o.type=='w')return o.v.set(.9-.5*s,st.rise*1.05,-.5*(1-.3*s)+.0);
+ const tx=rz/r*f*s,tz=-rx/r*f*s,ix=-rx/r*.3*s,iz=-rz/r*.3*s;
+ return o.v.set(-.55*(1-.6*s)+tx+ix,0,.05+tz+iz)}
+function spawn(o,init){o.age=init?r_(0,o.life):0;let x,z,t=0;
+ if(o.type=='w'){do{x=r_(-W,W);z=r_(-D,D)}while(!inside(x,z,polyW)&&++t<40);o.m.position.set(x,st.lift+r_(.05,1.2)*(init?1.5:.2),z)}
+ else{do{x=r_(-W,W);z=r_(-D,D)}while(inside(x,z,polyW)&&++t<40);o.m.position.set(x,r_(.3,3.2),z)}}
+for(let i=0;i<55;i++)mk('w');for(let i=0;i<75;i++)mk('c');
+// UI
+const cap=document.getElementById('cap'),bar=document.getElementById('bar');let auto=true;
+function go(i){idx=i;[...bar.children].forEach((b,j)=>b.classList.toggle('on',j==i));cap.querySelector('h2').textContent=S[i].t;cap.querySelector('p').textContent=S[i].d}
+S.forEach((s,i)=>{const b=document.createElement('button');b.textContent=i+1;b.onclick=()=>{auto=false;pb.textContent='▶ Play';go(i)};bar.appendChild(b)});
+const pb=document.createElement('button');pb.textContent='⏸ Pause';pb.onclick=()=>{auto=!auto;pb.textContent=auto?'⏸ Pause':'▶ Play'};bar.appendChild(pb);
+setInterval(()=>{if(auto)go((idx+1)%6)},7000);go(0);
+let yaw=-.55,pit=.05,dr=false,lx,ly;
+cv.onpointerdown=e=>{dr=true;lx=e.clientX;ly=e.clientY;cv.setPointerCapture(e.pointerId)};cv.onpointerup=()=>dr=false;
+cv.onpointermove=e=>{if(!dr)return;yaw+=(e.clientX-lx)*.006;pit+=(e.clientY-ly)*.004;pit=Math.max(-.1,Math.min(.5,pit));yaw=Math.max(-1.5,Math.min(1.5,yaw));lx=e.clientX;ly=e.clientY};
+root.rotation.y=yaw;let last=performance.now();
+(function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/1000);last=now;
+ const T=S[idx],k=.04;for(let i=0;i<10;i++)cur[i]+=(T.p[i]-cur[i])*k;for(const n in st)st[n]+=(T[n]-st[n])*k;rebuild();
+ PT.forEach(o=>{const p=o.m.position;p.addScaledVector(vel(o),dt);o.age+=dt;if(o.type=='w'){const a=Math.min(1,o.age*2);o.m.scale.setScalar(a)}
+  o.m.quaternion.setFromUnitVectors(up,tmp.copy(o.v).normalize());
+  if(p.y>H-.1||Math.abs(p.x)>W||Math.abs(p.z)>D||o.age>o.life)spawn(o)});
+ root.rotation.y+=(yaw-root.rotation.y)*.15;root.rotation.x+=(pit-root.rotation.x)*.15;R.render(sc,cam)})(last);
+</script></body></html>

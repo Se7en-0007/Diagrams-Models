@@ -1,0 +1,252 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Ocean Currents Atlas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: 3D globe stage beside a study panel (stacked on phones). Single deep-sea dark look by choice. */
+:root{--bg:#06121d;--panel:#0b2032;--ink:#e6f0f7;--mut:#b4cbda;--line:#1b3b55;--warm:#ff6a47;--cold:#5ec9ff;--neu:#dfe8ee;--ok:#4fd18b;
+--disp:'Bricolage Grotesque',system-ui,sans-serif;--body:'IBM Plex Sans',system-ui,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace;color-scheme:dark}
+html,body{height:100%;box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.app{display:grid;grid-template-columns:minmax(0,1fr) 410px;gap:14px;height:100%}
+@media(max-width:820px){.app{grid-template-columns:minmax(0,1fr);grid-template-rows:42% minmax(0,1fr)}}
+.stage{position:relative;min-height:0;min-width:0;border-radius:14px;overflow:hidden;background:radial-gradient(circle at 50% 45%,#0e2d47,#06121d 70%);border:1px solid var(--line)}
+.stage canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
+#labs{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.lab{position:absolute;left:0;top:0;font:700 12px/1 var(--body);white-space:nowrap;text-shadow:0 0 3px #000,0 0 3px #000,0 0 7px #000;display:none}
+.lab.w{color:#ff9a80}.lab.c{color:#9fdcff}.lab.n{color:#fff}
+.leg{position:absolute;left:10px;bottom:10px;display:flex;gap:10px;flex-wrap:wrap;font:500 12px var(--mono);color:var(--mut)}
+.leg i{display:inline-block;width:18px;height:4px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.zm{position:absolute;right:10px;bottom:10px;display:flex;gap:6px}
+.zm button{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:#0b2032cc;color:var(--ink);font-size:18px;cursor:pointer}
+.panel{min-height:0;min-width:0;display:flex;flex-direction:column;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px}
+h1{font:700 22px/1.1 var(--disp);margin:0}
+.sub{margin:2px 0 0;color:var(--mut);font-size:13px}
+.tabs,.chips{display:flex;gap:6px;flex-wrap:wrap}
+button{font:inherit;color:inherit}
+.tabs button,.chips button{border:1px solid var(--line);background:transparent;border-radius:999px;padding:5px 11px;cursor:pointer;font-size:13px}
+.tabs button.on,.chips button.on{background:var(--ink);color:#06121d;border-color:var(--ink);font-weight:600}
+#rc{margin-left:auto}
+button:focus-visible{outline:2px solid var(--cold);outline-offset:2px}
+.card{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#08192a;font-size:14.5px}
+.card .hint{margin:0;color:var(--mut)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+h2{font:700 19px/1.2 var(--disp);margin:0;text-wrap:balance}
+.b{font:500 11.5px var(--mono);text-transform:uppercase;letter-spacing:.08em;padding:3px 7px;border-radius:5px;color:#06121d;white-space:nowrap}
+.b.w{background:var(--warm)}.b.c{background:var(--cold)}.b.n{background:var(--neu)}
+dl{margin:8px 0 0;display:grid;grid-template-columns:auto 1fr;gap:6px 12px;line-height:1.5}
+dt{font:500 11.5px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--mut);padding-top:2px}
+dd{margin:0}
+.act{margin-top:8px;border:1px solid var(--cold);background:transparent;color:var(--cold);border-radius:8px;padding:6px 12px;cursor:pointer}
+.opts{display:grid;gap:6px;margin-top:8px}
+.opts button{text-align:left;border:1px solid var(--line);background:#0b2032;border-radius:8px;padding:8px 10px;cursor:pointer}
+.opts button.ok{border-color:var(--ok);background:#12392b}.opts button.no{border-color:var(--warm);background:#3a1a14}
+.it{font-size:14px}.list{overflow:auto;flex:1;min-height:0;display:flex;flex-direction:column;gap:3px}
+.it{display:flex;align-items:center;gap:9px;border:0;background:transparent;text-align:left;padding:6px 8px;border-radius:8px;cursor:pointer;width:100%}
+.it:hover,.it.on{background:#12304a}
+.it .d{width:10px;height:10px;border-radius:50%;flex:none}
+.it .n{flex:1;min-width:0}
+.it .o{font:500 11px var(--mono);color:var(--mut);text-transform:uppercase;letter-spacing:.06em}
+</style>
+<div class="app">
+ <div class="stage" id="stage">
+  <div id="labs"></div>
+  <div class="leg"><span><i style="background:var(--warm)"></i>Warm</span><span><i style="background:var(--cold)"></i>Cold</span><span><i style="background:var(--neu)"></i>Neutral drift</span></div>
+  <div class="zm"><button id="zi" aria-label="Zoom in">+</button><button id="zo" aria-label="Zoom out">−</button></div>
+ </div>
+ <aside class="panel">
+  <div><h1>Ocean Currents Atlas</h1><p class="sub">30 currents · drag the globe · dots show flow direction</p></div>
+  <div class="tabs"><button class="on" data-m="learn">Learn</button><button data-m="quiz">Quiz</button><button id="rc" aria-pressed="false">Hide names</button></div>
+  <div class="chips" id="chips"></div>
+  <div class="card" id="card"></div>
+  <div class="list" id="list"></div>
+ </aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+// [name, ocean, type(w/c/n), [lon,lat] path in flow direction, flow, cause]
+const D=[
+["North Equatorial Current (Pacific)","Pacific","w",[[-95,11],[-120,12],[-150,13],[-180,13],[-210,13],[-235,12]],"East → West along ~10–15°N. Together with the South Equatorial it spans ~14,500 km.","Prevailing NE trade winds; water piles up in the western Pacific (Indonesia/Australia)."],
+["South Equatorial Current (Pacific)","Pacific","w",[[-85,-3],[-120,-4],[-160,-5],[-190,-6],[-205,-8]],"East → West just south of the equator; part turns south as the East Australian Current.","SE trade winds."],
+["Equatorial Counter Current (Pacific)","Pacific","w",[[-215,6],[-180,6],[-140,7],[-100,8]],"West → East, squeezed between the North and South Equatorial currents.","Water piled up in the west flows back east through the calm doldrums belt."],
+["Kuroshio Current","Pacific","w",[[128,12],[127,21],[133,30],[143,36]],"Northward from the Philippines along Japan's east coast.","North Equatorial turns north at the Philippines; flows in the subtropical high-pressure belt, northern part under westerlies."],
+["Oyashio Current","Pacific","c",[[162,58],[158,50],[150,44],[144,39]],"Southward off Kamchatka's east coast to merge with Kuroshio.","Cold polar water. Cold + warm meeting makes a rich fishing ground."],
+["North Pacific Current","Pacific","w",[[143,37],[165,41],[190,44],[215,46],[232,47]],"West → East at ~40–45°N from Japan to North America, where it splits.","Prevailing westerlies push the Kuroshio eastward."],
+["Alaska Current","Pacific","w",[[-130,48],[-137,52],[-148,56],[-158,55]],"Anticlockwise along British Columbia and Alaska.","Northern branch of the North Pacific Current; warm relative to nearby water."],
+["California Current","Pacific","c",[[-130,47],[-128,38],[-124,30],[-116,22],[-105,13]],"Southward along the US west coast, then joins the North Equatorial Current.","Southern branch of the North Pacific Current; closes the clockwise N. Pacific gyre."],
+["East Australian Current","Pacific","w",[[155,-9],[157,-20],[156,-31],[153,-39]],"Southward along Australia's east coast; meets the South Pacific Current near Tasmania.","South Equatorial turns south at the western edge (mirrors Kuroshio)."],
+["South Pacific Current","Pacific","n",[[150,-45],[185,-46],[215,-45],[250,-43],[282,-40]],"West → East at ~40–50°S, from Tasmania toward South America.","Westerlies of the southern mid-latitudes."],
+["Peru (Humboldt) Current","Pacific","c",[[-78,-38],[-80,-28],[-82,-16],[-84,-6],[-86,-2]],"Northward along South America's west coast; feeds the South Equatorial Current.","South Pacific Current turns north at the continent; cold deep water upwells."],
+["North Equatorial Current (Atlantic)","Atlantic","w",[[-18,13],[-40,14],[-60,15],[-75,15]],"East → West from West Africa toward the Caribbean.","NE trade winds."],
+["South Equatorial Current (Atlantic)","Atlantic","w",[[5,-3],[-10,-4],[-25,-5],[-33,-6]],"East → West; splits at Cape São Roque, Brazil.","SE trade winds; piles water in the western Atlantic."],
+["Equatorial Counter Current (Atlantic)","Atlantic","w",[[-38,5],[-20,5.5],[-5,5],[6,3]],"West → East between the two equatorial currents.","Water heaped near the Brazil bulge returns east through the doldrums."],
+["Antilles Current","Atlantic","w",[[-40,3],[-52,10],[-60,17],[-67,22],[-74,26],[-78,27]],"Along the east side of the West Indies.","Branch of the South Equatorial after the Cape São Roque split; the rest enters the Caribbean."],
+["Gulf Stream","Atlantic","w",[[-86,21.8],[-85.5,24.8],[-83,24.3],[-80.2,24.9],[-79.6,27],[-78.8,31],[-74.5,36],[-66,40],[-52,43]],"Florida Current up to Cape Hatteras, then the Gulf Stream NE along the US coast.","Gulf of Mexico water exits via the Strait of Florida and joins the Antilles Current."],
+["North Atlantic Drift","Atlantic","w",[[-52,43],[-38,47],[-24,51],[-12,55]],"West → East across the Atlantic to the British Isles.","Westerlies. Meets cold Labrador and East Greenland currents near the Grand Banks."],
+["Norwegian Current","Atlantic","w",[[-12,57],[-3,62],[6,66],[14,70],[24,73]],"Northward along Norway into the Arctic Ocean.","Branch of the North Atlantic Drift; keeps northern Norway's sea partly ice-free."],
+["Canary Current","Atlantic","c",[[-14,44],[-18,34],[-20,24],[-19,15]],"Southward between Spain and the Azores toward NW Africa.","Southern branch of the North Atlantic Drift; completes the gyre around the Sargasso Sea."],
+["Labrador Current","Atlantic","c",[[-58,66],[-54,58],[-51,51],[-49,45]],"Southward from the Arctic; meets the Gulf Stream at the Grand Banks.","Cold Arctic outflow."],
+["East Greenland Current","Atlantic","c",[[-14,76],[-18,70],[-30,66],[-40,61],[-45,59]],"Southward along Greenland's east coast.","Cold Arctic outflow."],
+["Brazil Current","Atlantic","w",[[-33,-6],[-35,-14],[-41,-24],[-50,-34]],"Southward along Brazil's coast to ~35°S, then swings east.","Southern branch of the South Equatorial Current."],
+["Falkland Current","Atlantic","c",[[-56,-53],[-56,-46],[-54,-40],[-52,-36]],"Northward between Argentina and the Falkland Islands; meets the Brazil Current.","Small branch of the West Wind Drift."],
+["Benguela Current","Atlantic","c",[[17,-36],[12,-28],[10,-18],[8,-8],[5,-3]],"Northward along SW Africa; joins the South Equatorial Current.","Branch of the South Atlantic flow at Africa's southern tip; coastal upwelling."],
+["West Wind Drift (Antarctic Circumpolar)","Southern","c",[[-70,-56],[-30,-56],[10,-55],[50,-53],[90,-52],[130,-54],[170,-57],[210,-58],[250,-58],[290,-57]],"West → East all the way round Antarctica at ~40–60°S.","Strong westerlies with no land to block them."],
+["South Equatorial Current (Indian)","Indian","w",[[112,-10],[90,-11],[72,-12],[56,-15]],"East → West at ~10–15°S; splits near Madagascar.","SE trade winds; partly fed by the Pacific."],
+["Agulhas Current","Indian","w",[[56,-16],[52,-23],[46,-28],[38,-32],[31,-34.5]],"Southwest along the east of Madagascar and Africa.","East branch of the South Equatorial Current."],
+["Mozambique Current","Indian","w",[[44,-11],[42,-16],[40,-24],[35,-31]],"Southward between Mozambique and western Madagascar.","West branch of the South Equatorial Current."],
+["West Australian Current","Indian","c",[[110,-35],[111,-28],[111,-20],[110,-12]],"Northward along Australia's west coast; feeds the South Equatorial Current.","Branch of the West Wind Drift."],
+["Monsoon Drift (North Indian)","Indian","w",[[94,6],[86,6],[76,4.5],[66,5],[56,7]],"Reverses with the season: east in the SW monsoon (summer), west in the NE monsoon (winter).","Seasonal monsoon winds, the only ocean where currents reverse."]
+];
+const P=["Off Mexico & Guatemala → Philippines", "Off Ecuador & Peru → Papua New Guinea, Solomon Is.", "Mid-Pacific, between Panama/Colombia and the Philippines", "Philippines, Taiwan, Japan", "Russia (Kamchatka, Kuril Is.), Japan", "Japan → USA, Canada", "Canada (British Columbia), USA (Alaska)", "Canada, USA (Washington→California), Mexico", "Papua New Guinea, Australia (to Tasmania)", "Australia (Tasmania), New Zealand → Chile", "Chile, Peru, Ecuador", "Senegal & Gambia → Lesser Antilles, Colombia", "Gabon & Congo coast → Brazil", "Brazil → Ghana, Nigeria (Gulf of Guinea)", "Lesser Antilles, Dominican Rep., Puerto Rico, Bahamas", "Cuba, USA (Florida→N. Carolina), Canada", "Canada (Newfoundland) → Ireland, UK", "Norway, Russia (Barents Sea)", "Portugal, Spain, Morocco, W. Sahara, Mauritania", "Canada (Nunavut, Labrador, Newfoundland)", "Greenland (Denmark), Iceland", "Brazil (Bahia→Rio Grande do Sul), Uruguay", "Argentina, Uruguay, Falkland Is. (UK)", "South Africa, Namibia, Angola, Gabon", "Circles Antarctica, south of Chile, South Africa, Australia, NZ", "Indonesia → Madagascar, Mauritius", "Madagascar, Mozambique, South Africa", "Mozambique, Madagascar, South Africa", "Australia (Western Australia)", "Sri Lanka, India, Maldives, Indonesia (Sumatra), Somalia"];
+const COL={w:0xff6a47,c:0x5ec9ff,n:0xdfe8ee},TL={w:"Warm",c:"Cold",n:"Neutral"};
+const ll=(lo,la,r=1)=>{lo*=Math.PI/180;la*=Math.PI/180;return new THREE.Vector3(r*Math.cos(la)*Math.cos(lo),r*Math.sin(la),-r*Math.cos(la)*Math.sin(lo))};
+
+function tex(){
+ const W=4096,H=2048,c=document.createElement("canvas");c.width=W;c.height=H;const g=c.getContext("2d");
+ const X=lo=>(lo+180)/360*W,Y=la=>(90-la)/180*H;
+ g.fillStyle="#0a2a44";g.fillRect(0,0,W,H);
+ g.lineWidth=2;
+ for(let lo=-180;lo<=180;lo+=15){g.strokeStyle=lo%30?"rgba(120,180,220,.07)":"rgba(120,180,220,.16)";g.beginPath();g.moveTo(X(lo),0);g.lineTo(X(lo),H);g.stroke()}
+ for(let la=-75;la<=75;la+=15){g.strokeStyle=la%30?"rgba(120,180,220,.07)":"rgba(120,180,220,.16)";g.beginPath();g.moveTo(0,Y(la));g.lineTo(W,Y(la));g.stroke()}
+ g.strokeStyle="rgba(255,255,255,.28)";g.setLineDash([16,16]);[0].forEach(la=>{g.beginPath();g.moveTo(0,Y(la));g.lineTo(W,Y(la));g.stroke()});g.setLineDash([]);
+ const poly=(p,f)=>{g.beginPath();p.forEach((q,i)=>i?g.lineTo(X(q[0]),Y(q[1])):g.moveTo(X(q[0]),Y(q[1])));g.closePath();g.fillStyle=f;g.fill();g.stroke()};
+ const L=[
+ [[-165,68],[-156,71],[-141,69.5],[-128,70],[-115,68],[-108,68],[-95,68],[-90,69],[-85,66],[-90,64],[-94,59],[-90,57],[-82,55],[-79,52],[-77,56],[-78,60],[-77,62],[-72,63],[-65,60],[-61,56],[-56,52],[-60,50],[-66,50],[-64,46],[-61,45.5],[-66,44],[-70,43],[-70,41.5],[-74,40.5],[-76,37],[-75.5,35],[-78,34],[-81,31],[-80,27],[-80.5,25.2],[-82,26],[-83,29],[-85,30],[-89,30],[-91,29.2],[-94,29.5],[-97,27],[-97.5,22],[-96,19],[-94,18],[-91,19],[-90.5,21],[-87,21.5],[-88,18],[-88,16],[-84,15.5],[-83.5,11],[-81,9],[-79.5,9.5],[-77.5,8.5],[-80,7.3],[-83,8.3],[-86,11],[-88,13],[-92,14.5],[-96,15.7],[-100,17],[-105,20],[-105.5,22.5],[-109,25.5],[-112,29],[-114.7,31.7],[-114,29],[-111,25],[-110,23],[-112,24.5],[-115,27.7],[-117,32.5],[-120.5,34.5],[-122.5,37.5],[-124,40.5],[-124,46],[-124.7,48.4],[-123,49],[-127,51],[-130,54.5],[-135,58],[-140,59.8],[-148,60.5],[-152,59],[-154,57.5],[-158,56.5],[-163,54.8],[-160,56.8],[-157,58.7],[-162,58.5],[-165,62],[-161,64.5],[-168,65.5]],
+ [[-73,78],[-60,82],[-30,83.5],[-20,80],[-19,75],[-22,70],[-32,67],[-42,60],[-48,61],[-52,65],[-54,69],[-58,75],[-68,76.5]],
+ [[-80,73],[-68,70],[-62,66],[-65,63],[-75,65],[-80,70]],[[-118,72],[-105,73],[-101,69],[-115,69]],[[-90,80],[-62,82],[-75,78],[-85,77]],
+ [[-59,47.5],[-53,47],[-55,51.5],[-59,50]],[[-85,22],[-80,23],[-74,20],[-78,20]],[[-74.3,19.7],[-69,19.5],[-68.4,18.5],[-74.3,18.3]],[[-24,65.5],[-18,66.4],[-13.5,65],[-18,63.4],[-22,63.8]],
+ [[-77.5,8],[-76,9],[-72,12],[-71,11],[-67,10.6],[-62,10.7],[-60,8.5],[-57,6],[-52,5],[-50,1.5],[-48,-1],[-44,-2.5],[-39,-3.5],[-35,-5.5],[-35,-9],[-37.5,-12],[-39,-17],[-40,-21],[-43,-23],[-48,-26],[-49,-29],[-52,-33],[-55,-35],[-57,-35],[-57,-37.5],[-62,-39],[-65,-41],[-64,-45],[-67,-46],[-66,-48],[-69,-51],[-68.5,-53],[-68,-55],[-72,-54],[-74.5,-50],[-75,-46],[-73.5,-42],[-73.5,-37],[-71.5,-32],[-71.5,-27],[-70.3,-18.5],[-76,-14],[-79,-8],[-81,-5],[-80,-2],[-80.5,0],[-79,2],[-78,6.5]],
+ [[-5.5,35.8],[-2,35.2],[3,36.8],[10,37.2],[11,35],[10,33.5],[15,32.3],[20,32],[20,30.5],[25,31.7],[32,31.2],[32.5,30],[33,28],[35,24],[37,19],[38.5,16],[43,12.5],[43.3,11.5],[51.2,11.8],[50.5,9],[48,5],[43,0.5],[40,-3],[39,-6.5],[40.5,-11],[40.5,-15],[35,-19.5],[35,-24],[32.8,-26],[32.5,-28.5],[30,-31.5],[27,-33.5],[22,-34],[19,-34.5],[18,-32],[16,-28.5],[15,-26],[14,-22],[11.8,-17],[13,-12],[12,-6],[9,-1],[9.5,3.8],[8.5,4.5],[5,6],[2,6.3],[-2,5],[-4,5.2],[-7.5,4.4],[-11,6.8],[-13.2,8.5],[-15,11],[-16.7,12.5],[-17.5,14.7],[-16.5,19],[-16,22],[-13,27.5],[-10,29.5],[-9.7,31],[-8.5,33.5],[-6,35.8]],
+ [[49.3,-12],[50.5,-15.5],[47.5,-25],[45,-25.5],[43.5,-22],[44,-17],[47,-14.5]],
+ [[-5.5,36],[-9,37],[-9.5,39],[-8.8,42],[-9.3,43],[-2,43.5],[-1.5,46],[-4.5,48.5],[-1.5,48.7],[1.5,50.5],[4,51.5],[8,53.7],[8.5,57],[10.5,57.7],[10.5,55],[12,54],[14,54],[19,54.4],[21,55.5],[21,57],[24,57.5],[23.5,59.2],[30,60],[22,60.5],[21.5,63],[25,65],[22,65.8],[17.5,62.5],[17,60.5],[19,59.5],[16.5,56.5],[13,55.4],[11.5,58],[8,58],[5,60],[5,62],[11,64.5],[14,67.5],[20,70],[28,71],[32,70],[41,67],[44,68],[53,68.5],[60,69],[68,69],[73,72.5],[80,73],[87,75],[100,77],[105,77.5],[112,74],[130,71],[140,72.5],[160,70],[170,70],[180,69],[180,65.5],[177,64.5],[170,60],[164,60],[163,58],[162,55],[156,51],[156,57],[159,60.5],[155,59.5],[149,59.5],[142,59],[138,56],[135,54.5],[141,53],[140.5,48.5],[135,43.5],[131,42.5],[129.5,40.5],[128,38.5],[129,35.3],[126.5,34.5],[126.5,37.5],[125,39.5],[121.5,39],[121,40.5],[118,39],[119,37],[122.5,37],[120,35.5],[121.5,32],[122,30],[120.5,26.5],[117,23.3],[113.5,22],[110.5,21],[109.5,20.5],[106,20],[106,17.5],[108.5,15],[109,12],[107,10.5],[105,8.7],[104.8,10],[100.5,13.3],[100,9],[101,6.8],[103.5,4],[104,1.4],[102,2.5],[100.5,6],[98.5,8.5],[98.5,13],[97.5,16.5],[94.5,16],[94,19],[92,21],[91,22.5],[88,21.7],[86.5,20],[84.5,19],[82,16.5],[80.2,15],[80,10.5],[79.5,9.5],[77.5,8.1],[76.2,10],[74.8,13],[73,17],[72.8,21],[70,21],[68.5,23.5],[66.5,25.4],[61.5,25.2],[57,25.7],[56.5,27],[54,26.7],[50.5,29.5],[48.8,30.1],[48,29.5],[50,26.5],[50.8,24.8],[51.6,24.3],[54,24.2],[56,26],[56.4,24.5],[58.5,23.7],[59.8,22.4],[57.7,19],[55,17],[52,16],[49,14.5],[45,12.8],[43.3,12.7],[42.7,15],[41,19],[39,22],[37,26],[35,28.5],[34.8,29.5],[34.3,31.2],[35,33],[36,36.5],[33,36.2],[30,36.5],[27.5,37],[26.5,39.5],[26.5,40.2],[24,40.5],[23.8,38.1],[22.8,36.5],[21.5,36.8],[21,38.5],[19.5,40.5],[19.5,42],[16,43.5],[13.8,45.2],[12.3,45.3],[12.5,44],[14,42.5],[16,41.9],[18.5,40.2],[17,39.5],[16.5,38.5],[15.7,37.9],[15.8,39.9],[15,40.2],[12.8,41.5],[10.5,43],[9,44.3],[7.5,43.8],[4,43.4],[3,42.3],[3.2,41.8],[0.8,41],[-0.3,39.3],[0,38.7],[-1.5,37.3],[-4.5,36.7]],
+ [[113.5,-22],[114,-26.5],[115,-30],[115,-34],[118,-35],[122,-34],[126,-32.2],[131,-31.5],[134,-32.7],[137.8,-33],[138,-35.5],[140,-37.5],[144,-38.3],[146.5,-39],[149.5,-37.7],[150.2,-35],[151.3,-33.5],[153,-30],[153.5,-27],[152,-24.5],[150,-22],[148,-20],[146,-18.5],[145.4,-15],[143.5,-14],[142.5,-10.7],[141.5,-13],[141.5,-15.5],[140.5,-17.5],[139,-17],[136,-15.8],[135.5,-14.5],[136.5,-12.2],[132.5,-11.5],[130.5,-12.5],[129.5,-15],[127,-14],[125.5,-14.5],[123,-17],[121.5,-19],[117,-20.5],[114,-22]],
+ [[144.7,-40.8],[148.3,-40.9],[148,-43],[146,-43.6],[145,-42]],
+ [[172.7,-34.4],[174.5,-36],[176,-37.7],[178.5,-37.7],[177,-39.5],[175.2,-41.6],[174.7,-41.2],[174.8,-39.5],[173.8,-39.2]],[[172.7,-40.5],[174,-41.5],[172,-43.7],[170.5,-46],[168,-46.6],[166.5,-45.8],[168.5,-44],[171,-42.2]],
+ [[-180,-72],[-60,-72],[-62,-64],[-57,-63.3],[-60,-66],[-65,-70],[-180,-72]],[[-60,-72],[180,-72],[180,-90],[-180,-90],[-180,-72]],
+ [[130.9,34],[132.5,35.5],[136,36],[137.3,37.5],[139.5,38.5],[140,40.5],[141.5,41.3],[142,39.5],[141,37],[140.8,35.5],[139.5,34.8],[137,34.6],[135.5,33.5],[133,33.8]],[[140,42],[141.5,45.3],[145.5,43.3],[143,42]],[[130,33.5],[131.8,33.2],[131,31],[130.2,31.2],[129.8,32.8]],[[142,46],[143,49],[143.2,53.5],[142.5,54],[142,50]],
+ [[-5.5,50],[1.5,51],[1.7,52.7],[-0.5,54.5],[-2,56],[-2,57.6],[-4,57.7],[-5,58.6],[-6.2,57],[-5.5,55.5],[-3,54.8],[-3,53.4],[-4.5,53.3],[-5,51.7],[-3,51.3],[-4.2,50.4]],[[-10,52],[-6,52.2],[-6,54.2],[-6.2,55.2],[-8,55.3],[-10,54.2]],
+ [[120.1,23],[121.5,25.2],[121.9,24],[120.9,21.9]],[[120.5,18.5],[122.2,18.4],[122,14.2],[124,13],[121,13.7],[120,16]],[[122,7],[125,9.5],[126.5,7],[125.5,5.8],[123,7]],[[123,11],[125,11],[125,10],[123,9.5]],
+ [[109,1.5],[111,2],[113,3.2],[116,6.9],[117.5,7],[119,5],[118,1],[117.5,-1],[116,-4],[114,-3.5],[110.5,-3],[109.5,-1]],[[95.3,5.5],[98,4],[100.5,2],[103.5,-1],[106,-3],[105.8,-5.8],[103,-4.5],[101,-2.5],[98.5,1.5],[96,3]],
+ [[105.3,-6.8],[108,-6.3],[111,-6.5],[114.4,-7.7],[114,-8.7],[110,-8.2],[106.5,-7.4]],[[119.5,-5],[120.5,-3],[120,0.5],[121,1.2],[125,1.5],[123.5,0.5],[121,-1],[123,-4],[122,-5],[120.5,-5.5]],
+ [[131,-1],[135,-3.5],[138,-1.8],[141,-2.6],[145.5,-5],[147.5,-6],[150,-10.5],[147,-10],[143.5,-9],[141,-9.1],[138,-8.3],[137,-5],[133,-4],[132,-2.5]],
+ [[79.8,9.8],[81.8,7.5],[81,6],[80,6.2],[79.8,8]],[[12.5,38],[15.6,38.2],[15,36.7]],[[8.2,41],[9.7,41],[9.6,39],[8.5,39]],[[52,71],[57,75],[68,77],[60,73.5]],[[11,78.5],[20,80],[27,79],[18,77]]];
+ g.fillStyle="#2f4f45";g.strokeStyle="#8cc4aa";g.lineWidth=2.5;g.lineJoin="round";
+ L.forEach(p=>poly(p,"#2f4f45"));
+ poly([[28,41.5],[29,41.2],[31,41.2],[35,42],[38,41],[41.5,41.5],[41.5,43],[38,44.5],[37.5,45.5],[35,45],[33,46],[31,46.5],[30,45.5],[29,44.5],[28,43],[28,42]],"#0a2a44");
+ poly([[47,45],[50,47],[53,46.5],[53.5,44],[51,43],[51,41],[53,40],[53.8,37.5],[50.5,37],[49,38.5],[49,41],[47.5,43]],"#0a2a44");
+ g.textAlign="center";g.textBaseline="middle";g.lineJoin="round";
+ const T=(s,lo,la,sz,a)=>{g.font="700 "+sz+"px sans-serif";g.fillStyle="rgba(200,230,245,"+a+")";g.fillText(s,X(lo),Y(la))};
+ T("PACIFIC OCEAN",-140,-27,104,.3);T("PACIFIC OCEAN",165,25,80,.22);T("ATLANTIC OCEAN",-38,28,100,.3);T("ATLANTIC OCEAN",-20,-30,80,.22);T("INDIAN OCEAN",78,-27,100,.3);T("SOUTHERN OCEAN",0,-66,88,.3);T("ANTARCTICA",0,-82,70,.45);
+ const N=(s,lo,la,sz)=>{g.font="600 "+sz+"px 'IBM Plex Sans',sans-serif";g.lineWidth=5;g.strokeStyle="rgba(4,20,16,.85)";g.strokeText(s,X(lo),Y(la));g.fillStyle="#f2f8f4";g.fillText(s,X(lo),Y(la))};
+ [["Canada",-105,58,34],["United States",-98,39,32],["Mexico",-102,24,26],["Cuba",-79,21.8,16],["Guatemala",-90.5,15.3,14],["Colombia",-73,4,22],["Venezuela",-66,7,20],["Ecuador",-78.5,-1.3,14],["Peru",-74,-9,26],["Brazil",-53,-10,36],["Bolivia",-64.5,-17,20],["Chile",-71,-33,14],["Argentina",-65,-36,26],["Greenland",-42,74,26],["Iceland",-19,65,15],["Ireland",-8,53.5,12],["UK",-2,53.5,14],["France",2.5,46.7,20],["Spain",-3.7,40,20],["Portugal",-8,39.8,11],["Germany",10.5,51,18],["Italy",12.5,43,16],["Poland",19.5,52,16],["Ukraine",31,49,20],["Norway",9,63,14],["Sweden",16,62,16],["Finland",26,63.5,16],["Turkey",35,39,20],["Russia",95,62,44],["Kazakhstan",67,48,26],["China",103,35,38],["Mongolia",103,46.5,22],["India",79,22,32],["Pakistan",69,29.5,18],["Afghanistan",66,34,16],["Iran",54,32.5,22],["Iraq",43.5,33,14],["Saudi Arabia",45,24,22],["Yemen",47.5,15.8,13],["Oman",56,20.5,13],["Myanmar",96,21,15],["Thailand",101,15,16],["Vietnam",106.5,15.5,13],["Japan",138,37.5,15],["S. Korea",128,36.3,11],["Taiwan",121,23.6,10],["Philippines",122.5,14.5,13],["Malaysia",102,4.3,11],["Indonesia",113,-4.5,20],["Papua New Guinea",144,-6,14],["Australia",134,-25,36],["New Zealand",172,-42.5,12],["Morocco",-7,32,14],["Algeria",3,28,24],["Libya",18,27,22],["Egypt",30,26.5,20],["Mauritania",-10.5,20,14],["Mali",-3,17,18],["Niger",9,17,18],["Chad",18.5,15,18],["Sudan",30,15.5,20],["Ethiopia",40,8,18],["Nigeria",8,9.5,16],["Côte d'Ivoire",-5.5,7.5,11],["Cameroon",12.5,5.5,12],["Kenya",37.8,0.5,14],["DR Congo",23.5,-3,24],["Tanzania",34.8,-6.3,16],["Angola",17.5,-12,18],["Zambia",27.5,-14,16],["Mozambique",35.5,-17,14],["Namibia",17.5,-22,16],["South Africa",24.5,-30,22],["Madagascar",46.5,-19,13]].forEach(a=>N(...a));
+ const tx=new THREE.CanvasTexture(c);tx.anisotropy=8;return tx;
+}
+
+const wrap=$("stage");
+const rd=new THREE.WebGLRenderer({antialias:true,alpha:true});rd.setPixelRatio(Math.min(devicePixelRatio,2));wrap.prepend(rd.domElement);
+const sc=new THREE.Scene(),cam=new THREE.PerspectiveCamera(40,1,.1,50);
+sc.add(new THREE.AmbientLight(0xffffff,.8));const dl=new THREE.DirectionalLight(0xffffff,.55);dl.position.set(2,2,4);sc.add(dl);
+const G=new THREE.Group();sc.add(G);
+const globe=new THREE.Mesh(new THREE.SphereGeometry(1,64,48),new THREE.MeshLambertMaterial({map:tex()}));G.add(globe);
+sc.add(new THREE.Mesh(new THREE.SphereGeometry(1.06,48,32),new THREE.MeshBasicMaterial({color:0x2a8fd0,transparent:true,opacity:.1,side:THREE.BackSide})));
+G.quaternion.setFromEuler(new THREE.Euler(.35,-1.9,0));
+
+const up=new THREE.Vector3(0,1,0),picks=[];
+const C=D.map((d,i)=>{
+ const t=d[2],raw=new THREE.CatmullRomCurve3(d[3].map(q=>ll(q[0],q[1])));
+ const cv=new THREE.CatmullRomCurve3(raw.getPoints(90).map(v=>v.normalize().multiplyScalar(1.014)));
+ const m=new THREE.MeshBasicMaterial({color:COL[t],transparent:true}),pm=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true});
+ const g=new THREE.Group();g.add(new THREE.Mesh(new THREE.TubeGeometry(cv,140,.0065,6,false),m));
+ const cone=(u,sg)=>{const k=new THREE.Mesh(new THREE.ConeGeometry(.02,.055,10),m),tg=cv.getTangentAt(u).multiplyScalar(sg);k.position.copy(cv.getPointAt(u)).addScaledVector(tg,-.02);k.quaternion.setFromUnitVectors(up,tg);g.add(k)};
+ const s=d[0].startsWith("Monsoon");cone(1,1);if(s)cone(0,-1);
+ const ps=[0,1,2].map(()=>{const p=new THREE.Mesh(new THREE.SphereGeometry(.011,8,6),pm);g.add(p);return p});
+ const pk=new THREE.Mesh(new THREE.TubeGeometry(cv,40,.03,4,false),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));pk.userData.i=i;
+ G.add(g,pk);picks.push(pk);
+ const lab=document.createElement("div");lab.className="lab "+t;lab.textContent=d[0].replace(" Current","").replace(/\((\w)\w*\)/,"($1)").replace(" (Antarctic Circumpolar)","");$("labs").appendChild(lab);
+ return{g,m,pm,ps,cv,s,lab,mid:cv.getPointAt(.5)};
+});
+
+let sel=null,mode="learn",recall=false,filt="all",tq=null,glow=null,baseZ=3.4,cz=3.4;const rev=new Set();
+const FL={all:()=>true,w:i=>D[i][2]==="w",c:i=>D[i][2]==="c",Pacific:i=>D[i][1]==="Pacific",Atlantic:i=>D[i][1]==="Atlantic",Indian:i=>D[i][1]==="Indian",Southern:i=>D[i][1]==="Southern"};
+const F=i=>FL[filt](i);
+
+function paint(){
+ C.forEach((c,i)=>{const on=mode==="quiz"||F(i);c.g.visible=on;const o=sel==null||sel===i?1:.15;c.m.opacity=o;c.pm.opacity=o});
+}
+function select(i){
+ sel=i;if(glow){G.remove(glow);glow.geometry.dispose();glow=null}
+ if(i!=null){const c=C[i];glow=new THREE.Mesh(new THREE.TubeGeometry(c.cv,140,.019,8,false),new THREE.MeshBasicMaterial({color:COL[D[i][2]],transparent:true,opacity:.35,depthWrite:false}));G.add(glow);
+  tq=new THREE.Quaternion().setFromUnitVectors(c.mid.clone().normalize(),new THREE.Vector3(0,0,1));cz=baseZ*.8}
+ else cz=baseZ;
+ paint();card();list();
+}
+
+const q={i:-1,o:[],a:null,score:0,total:0};
+function nextQ(){let i;do{i=Math.floor(Math.random()*D.length)}while(i===q.i);const o=[i];while(o.length<4){const j=Math.floor(Math.random()*D.length);if(!o.includes(j))o.push(j)}o.sort(()=>Math.random()-.5);q.i=i;q.o=o;q.a=null;select(i)}
+const dl2=i=>`<dl><dt>Ocean</dt><dd>${D[i][1]}</dd><dt>Coasts</dt><dd>${P[i]}</dd><dt>Flow</dt><dd>${D[i][4]}</dd><dt>Cause</dt><dd>${D[i][5]}</dd></dl>`;
+function card(){
+ const el=$("card");
+ if(mode==="quiz"){
+  const sc2=`<div class="row"><b>Score ${q.score}/${q.total}</b><span class="b ${D[q.i][2]}">${TL[D[q.i][2]]}</span></div>`;
+  if(q.a==null)el.innerHTML=sc2+`<p style="margin:8px 0 0">Which current is glowing?</p><div class="opts">${q.o.map(j=>`<button data-j="${j}">${D[j][0]}</button>`).join("")}</div>`;
+  else el.innerHTML=sc2+`<p style="margin:8px 0 0"><b style="color:var(${q.a===q.i?"--ok":"--warm"})">${q.a===q.i?"Correct":"Not quite"}</b> · it is <b>${D[q.i][0]}</b></p>${dl2(q.i)}<button class="act" data-act="next">Next current</button>`;
+  return;
+ }
+ if(sel==null){el.innerHTML=`<p class="hint">Tap a current on the globe or in the list. Red is warm, blue is cold, white is neutral drift. Moving dots show direction.</p>`;return}
+ const hid=recall&&!rev.has(sel);
+ el.innerHTML=`<div class="row"><h2>${hid?"? ? ?":D[sel][0]}</h2><span class="b ${D[sel][2]}">${TL[D[sel][2]]}</span></div>${dl2(sel)}${hid?`<button class="act" data-act="rev">Reveal name</button>`:""}`;
+}
+function list(){
+ const el=$("list");el.style.display=mode==="quiz"?"none":"";if(mode==="quiz")return;
+ el.innerHTML=D.map((d,i)=>F(i)?`<button class="it${i===sel?" on":""}" data-i="${i}"><span class="d" style="background:#${COL[d[2]].toString(16).padStart(6,"0")}"></span><span class="n">${recall&&!rev.has(i)?"• • • • • • •":d[0]}</span><span class="o">${d[1]}</span></button>`:"").join("");
+}
+$("chips").innerHTML=[["all","All"],["w","Warm"],["c","Cold"],["Pacific","Pacific"],["Atlantic","Atlantic"],["Indian","Indian"],["Southern","Southern"]].map(([k,t])=>`<button data-f="${k}"${k==="all"?' class="on"':""}>${t}</button>`).join("");
+$("chips").onclick=e=>{const b=e.target.closest("[data-f]");if(!b)return;filt=b.dataset.f;[...$("chips").children].forEach(x=>x.classList.toggle("on",x===b));if(sel!=null&&!F(sel))sel=null;select(sel)};
+$("list").onclick=e=>{const b=e.target.closest("[data-i]");if(b)select(+b.dataset.i)};
+$("card").onclick=e=>{
+ const j=e.target.closest("[data-j]"),a=e.target.closest("[data-act]");
+ if(j&&q.a==null){q.a=+j.dataset.j;q.total++;if(q.a===q.i)q.score++;card()}
+ else if(a){if(a.dataset.act==="next")nextQ();else{rev.add(sel);card();list()}}
+};
+document.querySelector(".tabs").onclick=e=>{
+ const b=e.target.closest("[data-m]");if(!b)return;mode=b.dataset.m;
+ document.querySelectorAll(".tabs [data-m]").forEach(x=>x.classList.toggle("on",x===b));
+ $("rc").style.display=mode==="quiz"?"none":"";$("chips").style.display=mode==="quiz"?"none":"";
+ if(mode==="quiz"){q.score=0;q.total=0;q.i=-1;nextQ()}else select(null);
+};
+$("rc").onclick=()=>{recall=!recall;$("rc").setAttribute("aria-pressed",recall);$("rc").textContent=recall?"Show names":"Hide names";rev.clear();card();list()};
+$("zi").onclick=()=>{cz=Math.max(1.8,cz/1.2)};$("zo").onclick=()=>{cz=Math.min(baseZ*1.5,cz*1.2)};
+
+// drag + tap
+const cvs=rd.domElement,ray=new THREE.Raycaster(),mv=new THREE.Vector2();let dn=null,moved=0;
+cvs.addEventListener("pointerdown",e=>{dn={x:e.clientX,y:e.clientY};moved=0;cvs.setPointerCapture(e.pointerId);cvs.style.cursor="grabbing"});
+cvs.addEventListener("pointermove",e=>{if(!dn)return;const dx=e.clientX-dn.x,dy=e.clientY-dn.y;moved+=Math.abs(dx)+Math.abs(dy);dn={x:e.clientX,y:e.clientY};tq=null;
+ const k=.0055*cz/3.4;G.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(up,dx*k)).premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),dy*k))});
+cvs.addEventListener("pointerup",e=>{cvs.style.cursor="grab";const was=dn;dn=null;if(!was||moved>6||mode==="quiz")return;
+ const r=cvs.getBoundingClientRect();mv.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(mv,cam);
+ const h=ray.intersectObjects([globe,...picks])[0];
+ if(h&&h.object.userData.i!=null&&F(h.object.userData.i))select(h.object.userData.i);else if(sel!=null)select(null)});
+cvs.addEventListener("wheel",e=>{e.preventDefault();cz=Math.min(baseZ*1.5,Math.max(1.8,cz*(e.deltaY>0?1.08:.93)))},{passive:false});
+
+function size(){const w=wrap.clientWidth,h=wrap.clientHeight;rd.setSize(w,h);cam.aspect=w/h;cam.updateProjectionMatrix();const nb=3.4/Math.min(1,(w/h)/.95);cz=cz/baseZ*nb;baseZ=nb;if(!cam.position.z)cam.position.z=nb}
+new ResizeObserver(size).observe(wrap);size();cam.position.z=baseZ;
+
+function labels(){
+ const w=wrap.clientWidth,h=wrap.clientHeight;
+ C.forEach((c,i)=>{const L=c.lab,show=mode==="learn"&&!recall&&F(i)&&(sel==null||sel===i);
+  if(!show){L.style.display="none";return}
+  const v=c.mid.clone().applyQuaternion(G.quaternion);if(v.z<.3){L.style.display="none";return}
+  const p=v.project(cam);L.style.display="block";L.style.transform=`translate(${(p.x+1)*w/2}px,${(1-p.y)*h/2}px) translate(-50%,-140%)`})
+}
+function loop(ts){
+ const t=ts/1000;
+ if(tq){G.quaternion.slerp(tq,.1);if(G.quaternion.angleTo(tq)<.003)tq=null}
+ cam.position.z+=(cz-cam.position.z)*.1;
+ C.forEach(c=>{if(!c.g.visible)return;c.ps.forEach((p,k)=>p.position.copy(c.cv.getPointAt(c.s?.5+.5*Math.sin(t*.8+k*2.1):((t*.07+k/3)%1))))});
+ rd.render(sc,cam);labels();requestAnimationFrame(loop)
+}
+paint();card();list();requestAnimationFrame(loop);
+</script>
+
+</body></html>

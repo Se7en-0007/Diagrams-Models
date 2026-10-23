@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="World Mapping Atlas — Interactive UPSC CSE Geography Learning Tool with 3D Globe, Quiz, and Recall Modes">
+<title>World Mapping Atlas — UPSC CSE Geography</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap">
+<!-- Leaflet (2D real map) -->
+<link rel="stylesheet" href="world-map/assets/css/leaflet.css">
+<link rel="stylesheet" href="world-map/assets/css/app.css">
+</head>
+<body>
+<div id="app">
+  <!-- Header Bar -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="logo">
+        <span class="logo-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+        </span>
+        <span class="logo-text">World Mapping Atlas</span>
+        <span class="logo-sub">UPSC CSE</span>
+      </div>
+    </div>
+    <div class="header-center">
+      <nav class="mode-tabs" id="modeTabs" role="tablist">
+        <button class="mode-tab active" data-mode="browse" role="tab" aria-selected="true" id="tab-browse">Browse</button>
+        <button class="mode-tab" data-mode="quiz" role="tab" aria-selected="false" id="tab-quiz">Quiz</button>
+        <button class="mode-tab" data-mode="recall" role="tab" aria-selected="false" id="tab-recall">Recall</button>
+      </nav>
+    </div>
+    <div class="header-right">
+      <button class="icon-btn active" id="toggleLabels" title="Toggle Labels" aria-label="Toggle map labels">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
+      </button>
+      <button class="icon-btn" id="toggleView" title="Switch 2D/3D View" aria-label="Toggle globe/flat map">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+      </button>
+      <button class="icon-btn" id="resetView" title="Reset View" aria-label="Reset map view">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <div class="app-body">
+    <!-- Map Stage -->
+    <div class="map-stage" id="mapStage">
+      <div id="globeContainer" style="width: 100%; height: 100%;"></div>
+      <div id="flatMapContainer" class="hidden" aria-label="Flat world map"></div>
+
+      <!-- Map Overlays -->
+      <div class="map-overlays">
+        <div class="zoom-controls">
+          <button class="zoom-btn" id="zoomIn" aria-label="Zoom in">+</button>
+          <button class="zoom-btn" id="zoomOut" aria-label="Zoom out">−</button>
+        </div>
+        <div class="layer-controls" id="layerControls">
+          <button class="layer-btn active" data-layer="political" title="Political Boundaries">POL</button>
+          <button class="layer-btn active" data-layer="physical" title="Physical Features">PHY</button>
+          <button class="layer-btn active" data-layer="water" title="Water Bodies">H₂O</button>
+          <button class="layer-btn" data-layer="labels" title="Labels">ABC</button>
+        </div>
+        <div class="map-tooltip" id="mapTooltip"></div>
+      </div>
+
+      <!-- Quiz highlight overlay -->
+      <div class="quiz-prompt-overlay hidden" id="quizPromptOverlay">
+        <div class="quiz-prompt-text" id="quizPromptText"></div>
+      </div>
+    </div>
+
+    <!-- Side Panel -->
+    <aside class="side-panel" id="sidePanel">
+      <!-- Browse Mode (List & Detail View integrated) -->
+      <div class="panel-section" id="browsePanel" role="tabpanel">
+        <!-- Detail Subview inside Browse (shown when an entity is selected) -->
+        <div class="browse-detail-subview hidden" id="browseDetailSubview">
+          <div class="panel-nav">
+            <button class="back-btn" id="browseBackToList" aria-label="Back to list">← Back to List</button>
+            <div class="nav-arrows">
+              <button class="nav-btn" id="prevEntity" aria-label="Previous feature">‹</button>
+              <button class="nav-btn" id="nextEntity" aria-label="Next feature">›</button>
+            </div>
+          </div>
+          <div class="entity-detail" id="entityDetail"></div>
+        </div>
+
+        <!-- Master List Subview inside Browse -->
+        <div class="browse-list-subview" id="browseListSubview">
+          <div class="search-box">
+            <input type="search" id="searchInput" placeholder="Search countries, rivers, mountains…" aria-label="Search geographic features" autocomplete="off">
+            <span class="search-icon">⌕</span>
+          </div>
+          <div class="filter-chips" id="browseFilters">
+            <button class="chip active" data-filter="all">All</button>
+            <button class="chip" data-filter="country">Countries</button>
+            <button class="chip" data-filter="mountain">Mountains</button>
+            <button class="chip" data-filter="river">Rivers</button>
+            <button class="chip" data-filter="lake">Lakes</button>
+            <button class="chip" data-filter="strait">Straits</button>
+            <button class="chip" data-filter="desert">Deserts</button>
+            <button class="chip" data-filter="grassland">Grasslands</button>
+          </div>
+          <div class="continent-filter" id="continentFilter">
+            <select id="continentSelect" aria-label="Filter by continent">
+              <option value="">All Continents</option>
+              <option value="South America">South America</option>
+              <option value="Africa">Africa</option>
+              <option value="North America">North America</option>
+              <option value="Europe">Europe</option>
+              <option value="Asia">Asia</option>
+              <option value="Australia & Oceania">Australia &amp; Oceania</option>
+            </select>
+          </div>
+          <div class="results-info" id="resultsInfo"></div>
+          <div class="entity-list" id="entityList" role="list"></div>
+        </div>
+      </div>
+
+      <!-- Quiz Panel -->
+      <div class="panel-section hidden" id="quizPanel" role="tabpanel">
+        <div class="quiz-header">
+          <div class="quiz-score" id="quizScore">Score: 0/0</div>
+          <div class="quiz-progress" id="quizProgressBar">
+            <div class="quiz-progress-fill" id="quizFill"></div>
+          </div>
+        </div>
+        <div class="quiz-filters">
+          <select id="quizContinent" aria-label="Quiz continent filter">
+            <option value="">All Continents</option>
+            <option value="South America">South America</option>
+            <option value="Africa">Africa</option>
+            <option value="North America">North America</option>
+            <option value="Europe">Europe</option>
+            <option value="Asia">Asia</option>
+            <option value="Australia & Oceania">Australia &amp; Oceania</option>
+          </select>
+          <select id="quizType" aria-label="Quiz type filter">
+            <option value="">All Types</option>
+            <option value="country">Countries &amp; Capitals</option>
+            <option value="mountain">Mountains</option>
+            <option value="river">Rivers</option>
+            <option value="lake">Lakes</option>
+            <option value="strait">Straits</option>
+            <option value="desert">Deserts</option>
+            <option value="grassland">Grasslands</option>
+            <option value="fact">Facts &amp; Records</option>
+          </select>
+          <select id="quizStyle" aria-label="Quiz style">
+            <option value="mcq">Multiple Choice</option>
+            <option value="map">Map Identification</option>
+            <option value="mixed">Mixed</option>
+          </select>
+          <button class="primary-btn" id="startQuiz">Start Quiz</button>
+        </div>
+        <div class="quiz-card" id="quizCard"></div>
+        <div class="quiz-missed" id="quizMissed"></div>
+      </div>
+
+      <!-- Recall Panel -->
+      <div class="panel-section hidden" id="recallPanel" role="tabpanel">
+        <div class="recall-header">
+          <h2>Recall Mode</h2>
+          <p class="muted">Hide labels, recall facts, reveal answers</p>
+        </div>
+        <div class="recall-controls">
+          <select id="recallContinent" aria-label="Recall continent">
+            <option value="">All Continents</option>
+            <option value="South America">South America</option>
+            <option value="Africa">Africa</option>
+            <option value="North America">North America</option>
+            <option value="Europe">Europe</option>
+            <option value="Asia">Asia</option>
+            <option value="Australia & Oceania">Australia &amp; Oceania</option>
+          </select>
+          <select id="recallType" aria-label="Recall type">
+            <option value="">All Types</option>
+            <option value="country">Countries</option>
+            <option value="mountain">Mountains</option>
+            <option value="river">Rivers</option>
+            <option value="lake">Lakes</option>
+            <option value="strait">Straits</option>
+            <option value="desert">Deserts</option>
+            <option value="grassland">Grasslands</option>
+          </select>
+          <button class="primary-btn" id="startRecall">Begin Recall</button>
+        </div>
+        <div class="recall-card" id="recallCard"></div>
+        <div class="recall-progress" id="recallProgress"></div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Mobile Bottom Sheet -->
+  <div class="bottom-sheet" id="bottomSheet">
+    <div class="bottom-sheet-handle"></div>
+    <div class="bottom-sheet-content" id="bottomSheetContent"></div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-inner">
+      <div class="loading-globe">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+          <path d="M2 12h20"></path>
+        </svg>
+      </div>
+      <div class="loading-text">Loading World Mapping Atlas…</div>
+      <div class="loading-bar"><div class="loading-fill" id="loadingFill"></div></div>
+      <div class="loading-status" id="loadingStatus">Initialising…</div>
+    </div>
+  </div>
+
+  <!-- WebGL Fallback -->
+  <div class="webgl-fallback hidden" id="webglFallback">
+    <div class="fallback-inner">
+      <h2>Globe unavailable</h2>
+      <p>WebGL is not supported in this browser. You can still use Browse, Quiz and Recall modes in the panel on the right.</p>
+      <button class="primary-btn" id="dismissFallback">Continue without globe</button>
+    </div>
+  </div>
+</div>
+
+<!-- Leaflet (Local) -->
+<script src="world-map/assets/js/vendor/leaflet.js"></script>
+<!-- External dependencies -->
+<script src="world-map/assets/js/vendor/globe.gl.min.js"></script>
+<!-- Application data & logic -->
+<script src="world-map/data/world-map-content.js"></script>
+<script src="world-map/data/geographic-features.js"></script>
+<script src="world-map/data/country-boundaries.js"></script>
+<script src="world-map/assets/js/data-integrity.js"></script>
+<script src="world-map/assets/js/globe.js"></script>
+<script src="world-map/assets/js/flat-map.js"></script>
+<script src="world-map/assets/js/entity-panel.js"></script>
+<script src="world-map/assets/js/search.js"></script>
+<script src="world-map/assets/js/quiz-engine.js"></script>
+<script src="world-map/assets/js/recall-mode.js"></script>
+<script src="world-map/assets/js/progress.js"></script>
+<script src="world-map/assets/js/navigation.js"></script>
+<script src="world-map/assets/js/app.js"></script>
+</body>
+</html>

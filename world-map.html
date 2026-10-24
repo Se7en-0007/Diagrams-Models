@@ -1,16 +1,15 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="World Mapping Atlas — Interactive UPSC CSE Geography Learning Tool with 3D Globe, Quiz, and Recall Modes">
-<title>World Mapping Atlas — UPSC CSE Geography</title>
+<meta name="description" content="Mapping Atlas — Interactive UPSC CSE Geography Learning Tool with 2D Cartographic Map, Ocean Currents, Quiz, and Recall Modes">
+<title>Mapping Atlas — UPSC CSE Geography</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap">
-<!-- Leaflet (2D real map) -->
-<link rel="stylesheet" href="world-map/assets/css/leaflet.css">
-<link rel="stylesheet" href="world-map/assets/css/app.css">
+<!-- Stylesheet -->
+<link rel="stylesheet" href="world-map/assets/css/app.css?v=5">
 </head>
 <body>
 <div id="app">
@@ -19,25 +18,17 @@
     <div class="header-left">
       <div class="logo">
         <span class="logo-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
         </span>
-        <span class="logo-text">World Mapping Atlas</span>
+        <span class="logo-text">Mapping Atlas</span>
         <span class="logo-sub">UPSC CSE</span>
       </div>
     </div>
-    <div class="header-center">
-      <nav class="mode-tabs" id="modeTabs" role="tablist">
-        <button class="mode-tab active" data-mode="browse" role="tab" aria-selected="true" id="tab-browse">Browse</button>
-        <button class="mode-tab" data-mode="quiz" role="tab" aria-selected="false" id="tab-quiz">Quiz</button>
-        <button class="mode-tab" data-mode="recall" role="tab" aria-selected="false" id="tab-recall">Recall</button>
-      </nav>
-    </div>
     <div class="header-right">
-      <button class="icon-btn active" id="toggleLabels" title="Toggle Labels" aria-label="Toggle map labels">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
-      </button>
-      <button class="icon-btn" id="toggleView" title="Switch 2D/3D View" aria-label="Toggle globe/flat map">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+      <button class="icon-btn" id="themeToggle" title="Switch to Dark Mode" aria-label="Toggle theme">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
       </button>
       <button class="icon-btn" id="resetView" title="Reset View" aria-label="Reset map view">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
@@ -45,36 +36,200 @@
     </div>
   </header>
 
-  <!-- Main Layout -->
   <div class="app-body">
-    <!-- Map Stage -->
-    <div class="map-stage" id="mapStage">
-      <div id="globeContainer" style="width: 100%; height: 100%;"></div>
-      <div id="flatMapContainer" class="hidden" aria-label="Flat world map"></div>
-
-      <!-- Map Overlays -->
-      <div class="map-overlays">
-        <div class="zoom-controls">
-          <button class="zoom-btn" id="zoomIn" aria-label="Zoom in">+</button>
-          <button class="zoom-btn" id="zoomOut" aria-label="Zoom out">−</button>
-        </div>
-        <div class="layer-controls" id="layerControls">
-          <button class="layer-btn active" data-layer="political" title="Political Boundaries">POL</button>
-          <button class="layer-btn active" data-layer="physical" title="Physical Features">PHY</button>
-          <button class="layer-btn active" data-layer="water" title="Water Bodies">H₂O</button>
-          <button class="layer-btn" data-layer="labels" title="Labels">ABC</button>
-        </div>
-        <div class="map-tooltip" id="mapTooltip"></div>
-      </div>
-
-      <!-- Quiz highlight overlay -->
-      <div class="quiz-prompt-overlay hidden" id="quizPromptOverlay">
-        <div class="quiz-prompt-text" id="quizPromptText"></div>
-      </div>
-    </div>
-
     <!-- Side Panel -->
     <aside class="side-panel" id="sidePanel">
+      <!-- Kinds Multi-Select Grouped Dropdown placed ABOVE Browse, Practice, Game -->
+      <div class="sidebar-kinds-header-bar">
+        <div class="sidebar-dropdown-wrapper" id="layerDropdownWrapper">
+          <button type="button" class="sidebar-dropdown-trigger" id="layerDropdownBtn" aria-haspopup="true" aria-expanded="false" title="Filter map features and layers">
+            <span class="trigger-label">
+              <span class="trigger-prefix">KINDS:</span>
+              <strong id="layerDropdownLabel">Everything</strong>
+            </span>
+            <svg class="dropdown-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 9l6 6 6-6"/>
+            </svg>
+          </button>
+
+          <div class="sidebar-dropdown-menu hidden" id="layerDropdownMenu" role="menu" aria-label="Map layers filter">
+            <!-- Master Everything Toggle -->
+            <div class="dropdown-master-row">
+              <label class="dropdown-item master-item" for="chkSelectAllLayers">
+                <input type="checkbox" id="chkSelectAllLayers" checked>
+                <span class="custom-chk"></span>
+                <span class="item-name">Everything</span>
+              </label>
+            </div>
+
+            <!-- Group 1: India -->
+            <div class="dropdown-group" data-group="india">
+              <div class="dropdown-group-header">
+                <span class="group-title">INDIA</span>
+                <button type="button" class="group-quick-toggle" data-target-group="india" title="Toggle all India layers">All</button>
+              </div>
+              <div class="dropdown-group-items">
+                <label class="dropdown-item">
+                  <input type="checkbox" class="layer-chk" data-category="national_park" data-group="india" checked>
+                  <span class="custom-chk chk-national_park"></span>
+                  <span class="chk-color" style="background:#15803d;"></span>
+                  <span class="item-name">National Parks</span>
+                  <span class="chk-count">106</span>
+                  <button type="button" class="item-only-btn" data-category="national_park" title="Show only National Parks">only</button>
+                </label>
+                <label class="dropdown-item">
+                  <input type="checkbox" class="layer-chk" data-category="tiger_reserve" data-group="india" checked>
+                  <span class="custom-chk chk-tiger_reserve"></span>
+                  <span class="chk-color" style="background:#78350f;"></span>
+                  <span class="item-name">Tiger Reserves</span>
+                  <span class="chk-count">23</span>
+                  <button type="button" class="item-only-btn" data-category="tiger_reserve" title="Show only Tiger Reserves">only</button>
+                </label>
+                <label class="dropdown-item">
+                  <input type="checkbox" class="layer-chk" data-category="biosphere_reserve" data-group="india" checked>
+                  <span class="custom-chk chk-biosphere_reserve"></span>
+                  <span class="chk-color" style="background:#6b21a8;"></span>
+                  <span class="item-name">Biosphere Reserves</span>
+                  <span class="chk-count">18</span>
+                  <button type="button" class="item-only-btn" data-category="biosphere_reserve" title="Show only Biosphere Reserves">only</button>
+                </label>
+                <label class="dropdown-item">
+                  <input type="checkbox" class="layer-chk" data-category="ramsar_site" data-group="india" checked>
+                  <span class="custom-chk chk-ramsar_site"></span>
+                  <span class="chk-color" style="background:#0f766e;"></span>
+                  <span class="item-name">Ramsar Sites</span>
+                  <span class="chk-count">18</span>
+                  <button type="button" class="item-only-btn" data-category="ramsar_site" title="Show only Ramsar Sites">only</button>
+                </label>
+                <label class="dropdown-item">
+                  <input type="checkbox" class="layer-chk" data-category="river" data-group="india" checked>
+                  <span class="custom-chk chk-river"></span>
+                  <span class="chk-color" style="background:#0284c7;"></span>
+                  <span class="item-name">Rivers</span>
+                  <span class="chk-count">106</span>
+                  <button type="button" class="item-only-btn" data-category="river" title="Show only Rivers">only</button>
+                </label>
+                <label class="dropdown-item">
+                  <input type="checkbox" class="layer-chk" data-category="mountain" data-group="india" checked>
+                  <span class="custom-chk chk-mountain"></span>
+                  <span class="chk-color" style="background:#854d0e;"></span>
+                  <span class="item-name">Mountain Ranges</span>
+                  <span class="chk-count">26</span>
+                  <button type="button" class="item-only-btn" data-category="mountain" title="Show only Mountain Ranges">only</button>
+                </label>
+                <label class="dropdown-item">
+                  <input type="checkbox" class="layer-chk" data-category="peak" data-group="india" checked>
+                  <span class="custom-chk chk-peak"></span>
+                  <span class="chk-color" style="background:#9333ea;"></span>
+                  <span class="item-name">Peaks</span>
+                  <span class="chk-count">21</span>
+                  <button type="button" class="item-only-btn" data-category="peak" title="Show only Peaks">only</button>
+                </label>
+                <label class="dropdown-item">
+                  <input type="checkbox" class="layer-chk" data-category="pass" data-group="india" checked>
+                  <span class="custom-chk chk-pass"></span>
+                  <span class="chk-color" style="background:#c2410c;"></span>
+                  <span class="item-name">Passes</span>
+                  <span class="chk-count">20</span>
+                  <button type="button" class="item-only-btn" data-category="pass" title="Show only Passes">only</button>
+                </label>
+                <label class="dropdown-item">
+                  <input type="checkbox" class="layer-chk" data-category="glacier" data-group="india" checked>
+                  <span class="custom-chk chk-glacier"></span>
+                  <span class="chk-color" style="background:#0e7490;"></span>
+                  <span class="item-name">Glaciers</span>
+                  <span class="chk-count">10</span>
+                  <button type="button" class="item-only-btn" data-category="glacier" title="Show only Glaciers">only</button>
+                </label>
+                <label class="dropdown-item">
+                  <input type="checkbox" class="layer-chk" data-category="states" data-group="india" checked>
+                  <span class="custom-chk chk-states"></span>
+                  <span class="chk-color" style="background:#64748b;"></span>
+                  <span class="item-name">States</span>
+                  <span class="chk-count">36</span>
+                  <button type="button" class="item-only-btn" data-category="states" title="Show only States">only</button>
+                </label>
+              </div>
+            </div>
+
+            <!-- Group 2: World -->
+            <div class="dropdown-group" data-group="world">
+              <div class="dropdown-group-header">
+                <span class="group-title">WORLD</span>
+                <button type="button" class="group-quick-toggle" data-target-group="world" title="Toggle all World layers">All</button>
+              </div>
+              <div class="dropdown-group-items">
+                <label class="dropdown-item">
+                  <input type="checkbox" class="layer-chk" data-category="current" data-group="world" checked>
+                  <span class="custom-chk chk-current"></span>
+                  <span class="chk-color" style="background:#0284c7;"></span>
+                  <span class="item-name">Ocean Currents</span>
+                  <span class="chk-count">30</span>
+                  <button type="button" class="item-only-btn" data-category="current" title="Show only Ocean Currents">only</button>
+                </label>
+                <label class="dropdown-item">
+                  <input type="checkbox" class="layer-chk" data-category="wind" data-group="world" checked>
+                  <span class="custom-chk chk-wind"></span>
+                  <span class="chk-color" style="background:#ea580c;"></span>
+                  <span class="item-name">Local Winds</span>
+                  <span class="chk-count">12</span>
+                  <button type="button" class="item-only-btn" data-category="wind" title="Show only Local Winds">only</button>
+                </label>
+                <label class="dropdown-item">
+                  <input type="checkbox" class="layer-chk" data-category="country" data-group="world" checked>
+                  <span class="custom-chk chk-country"></span>
+                  <span class="chk-color" style="background:#2563eb;"></span>
+                  <span class="item-name">Countries</span>
+                  <span class="chk-count">195</span>
+                  <button type="button" class="item-only-btn" data-category="country" title="Show only Countries">only</button>
+                </label>
+                <label class="dropdown-item">
+                  <input type="checkbox" class="layer-chk" data-category="lake" data-group="world" checked>
+                  <span class="custom-chk chk-lake"></span>
+                  <span class="chk-color" style="background:#0284c7;"></span>
+                  <span class="item-name">Lakes</span>
+                  <span class="chk-count">35</span>
+                  <button type="button" class="item-only-btn" data-category="lake" title="Show only Lakes">only</button>
+                </label>
+                <label class="dropdown-item">
+                  <input type="checkbox" class="layer-chk" data-category="desert" data-group="world" checked>
+                  <span class="custom-chk chk-desert"></span>
+                  <span class="chk-color" style="background:#d97706;"></span>
+                  <span class="item-name">Deserts</span>
+                  <span class="chk-count">25</span>
+                  <button type="button" class="item-only-btn" data-category="desert" title="Show only Deserts">only</button>
+                </label>
+                <label class="dropdown-item">
+                  <input type="checkbox" class="layer-chk" data-category="grassland" data-group="world" checked>
+                  <span class="custom-chk chk-grassland"></span>
+                  <span class="chk-color" style="background:#16a34a;"></span>
+                  <span class="item-name">Grasslands</span>
+                  <span class="chk-count">11</span>
+                  <button type="button" class="item-only-btn" data-category="grassland" title="Show only Grasslands">only</button>
+                </label>
+                <label class="dropdown-item">
+                  <input type="checkbox" class="layer-chk" data-category="strait" data-group="world" checked>
+                  <span class="custom-chk chk-strait"></span>
+                  <span class="chk-color" style="background:#0d9488;"></span>
+                  <span class="item-name">Straits</span>
+                  <span class="chk-count">34</span>
+                  <button type="button" class="item-only-btn" data-category="strait" title="Show only Straits">only</button>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Browse | Practice | Game (Segmented control moved to sidebar top) -->
+      <div class="sidebar-modes-bar">
+        <nav class="mode-tabs" id="modeTabs" role="tablist">
+          <button class="mode-tab active" data-mode="browse" role="tab" aria-selected="true" id="tab-browse">Browse</button>
+          <button class="mode-tab" data-mode="quiz" role="tab" aria-selected="false" id="tab-quiz">Practice</button>
+          <button class="mode-tab" data-mode="recall" role="tab" aria-selected="false" id="tab-recall">Game</button>
+        </nav>
+      </div>
+
       <!-- Browse Mode (List & Detail View integrated) -->
       <div class="panel-section" id="browsePanel" role="tabpanel">
         <!-- Detail Subview inside Browse (shown when an entity is selected) -->
@@ -91,32 +246,30 @@
 
         <!-- Master List Subview inside Browse -->
         <div class="browse-list-subview" id="browseListSubview">
-          <div class="search-box">
-            <input type="search" id="searchInput" placeholder="Search countries, rivers, mountains…" aria-label="Search geographic features" autocomplete="off">
-            <span class="search-icon">⌕</span>
+          <!-- Search Header Row -->
+          <div class="search-header-row">
+            <div class="search-input-wrap">
+              <svg class="search-magnifier" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="search" id="searchInput" placeholder="Search places and rivers" aria-label="Search places and rivers" autocomplete="off">
+            </div>
+            <div class="search-mode-select-wrap">
+              <select id="searchModeSelect" aria-label="Filter mode">
+                <option value="all">All words</option>
+                <option value="any">Any word</option>
+              </select>
+            </div>
           </div>
-          <div class="filter-chips" id="browseFilters">
-            <button class="chip active" data-filter="all">All</button>
-            <button class="chip" data-filter="country">Countries</button>
-            <button class="chip" data-filter="mountain">Mountains</button>
-            <button class="chip" data-filter="river">Rivers</button>
-            <button class="chip" data-filter="lake">Lakes</button>
-            <button class="chip" data-filter="strait">Straits</button>
-            <button class="chip" data-filter="desert">Deserts</button>
-            <button class="chip" data-filter="grassland">Grasslands</button>
+
+          <!-- Section Heading: Location with Dynamic Item Count -->
+          <div class="sidebar-location-header">
+            <span class="location-title" id="locationHeaderTitle">Location</span>
+            <span class="location-count" id="resultsInfo">0</span>
           </div>
-          <div class="continent-filter" id="continentFilter">
-            <select id="continentSelect" aria-label="Filter by continent">
-              <option value="">All Continents</option>
-              <option value="South America">South America</option>
-              <option value="Africa">Africa</option>
-              <option value="North America">North America</option>
-              <option value="Europe">Europe</option>
-              <option value="Asia">Asia</option>
-              <option value="Australia & Oceania">Australia &amp; Oceania</option>
-            </select>
-          </div>
-          <div class="results-info" id="resultsInfo"></div>
+
+          <!-- Master Clean Entity List -->
           <div class="entity-list" id="entityList" role="list"></div>
         </div>
       </div>
@@ -129,33 +282,87 @@
             <div class="quiz-progress-fill" id="quizFill"></div>
           </div>
         </div>
-        <div class="quiz-filters">
-          <select id="quizContinent" aria-label="Quiz continent filter">
-            <option value="">All Continents</option>
-            <option value="South America">South America</option>
-            <option value="Africa">Africa</option>
-            <option value="North America">North America</option>
-            <option value="Europe">Europe</option>
-            <option value="Asia">Asia</option>
-            <option value="Australia & Oceania">Australia &amp; Oceania</option>
-          </select>
-          <select id="quizType" aria-label="Quiz type filter">
-            <option value="">All Types</option>
-            <option value="country">Countries &amp; Capitals</option>
-            <option value="mountain">Mountains</option>
-            <option value="river">Rivers</option>
-            <option value="lake">Lakes</option>
-            <option value="strait">Straits</option>
-            <option value="desert">Deserts</option>
-            <option value="grassland">Grasslands</option>
-            <option value="fact">Facts &amp; Records</option>
-          </select>
-          <select id="quizStyle" aria-label="Quiz style">
-            <option value="mcq">Multiple Choice</option>
-            <option value="map">Map Identification</option>
-            <option value="mixed">Mixed</option>
-          </select>
-          <button class="primary-btn" id="startQuiz">Start Quiz</button>
+
+        <!-- Collapsible Filter Drawer & Compact Active Bar -->
+        <div class="quiz-config-bar hidden" id="quizConfigBar">
+          <div class="config-summary" id="quizConfigSummary">
+            <span class="config-pill">🌐 All</span>
+            <span class="config-pill">All Types</span>
+            <span class="config-pill">MCQ</span>
+          </div>
+          <button type="button" class="config-toggle-btn" id="quizConfigToggleBtn" title="Show/Hide Quiz Filters">⚙ Filters</button>
+        </div>
+
+        <div class="quiz-filters-drawer" id="quizFiltersDrawer">
+          <div class="quiz-filters">
+            <select id="quizContinent" aria-label="Quiz region filter">
+              <option value="">All Continents</option>
+              <option value="India">🇮🇳 India Only</option>
+              <option value="South America">South America</option>
+              <option value="Africa">Africa</option>
+              <option value="North America">North America</option>
+              <option value="Europe">Europe</option>
+              <option value="Asia">Asia</option>
+              <option value="Australia & Oceania">Australia &amp; Oceania</option>
+            </select>
+
+            <!-- Grouped Multi-Select Dropdown for Practice (Supports intragroup, intergroup & mixed testing) -->
+            <div class="sidebar-dropdown-wrapper" id="quizTypeWrapper">
+              <button type="button" class="sidebar-dropdown-trigger" id="quizTypeBtn" aria-haspopup="true" aria-expanded="false" title="Filter types to practice">
+                <span class="trigger-label" id="quizTypeLabel">All Types</span>
+                <span class="trigger-badge" id="quizTypeBadge">All</span>
+                <svg class="dropdown-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <div class="sidebar-dropdown-menu hidden" id="quizTypeMenu" role="menu">
+                <div class="dropdown-quick-actions">
+                  <button type="button" class="quick-pill-btn" data-action="all" data-target="quiz">All</button>
+                  <button type="button" class="quick-pill-btn" data-action="india" data-target="quiz">🇮🇳 India</button>
+                  <button type="button" class="quick-pill-btn" data-action="world" data-target="quiz">🌐 World</button>
+                  <button type="button" class="quick-pill-btn" data-action="clear" data-target="quiz">Clear</button>
+                </div>
+                <div class="dropdown-group">
+                  <div class="dropdown-group-header">
+                    <span>INDIA</span>
+                    <button type="button" class="group-select-btn" data-group="india" data-target="quiz">All</button>
+                  </div>
+                  <div class="dropdown-group-items">
+                    <label class="dropdown-item"><input type="checkbox" class="quiz-type-chk" data-type="national_park" data-group="india" checked><span class="chk-color" style="background:#15803d;"></span><span class="item-name">National Parks</span><span class="chk-count">106</span><button type="button" class="item-only-btn" data-type="national_park" data-target="quiz" title="Test only National Parks">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="quiz-type-chk" data-type="tiger_reserve" data-group="india" checked><span class="chk-color" style="background:#78350f;"></span><span class="item-name">Tiger Reserves</span><span class="chk-count">23</span><button type="button" class="item-only-btn" data-type="tiger_reserve" data-target="quiz" title="Test only Tiger Reserves">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="quiz-type-chk" data-type="biosphere_reserve" data-group="india" checked><span class="chk-color" style="background:#6b21a8;"></span><span class="item-name">Biosphere Reserves</span><span class="chk-count">18</span><button type="button" class="item-only-btn" data-type="biosphere_reserve" data-target="quiz" title="Test only Biosphere Reserves">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="quiz-type-chk" data-type="ramsar_site" data-group="india" checked><span class="chk-color" style="background:#0f766e;"></span><span class="item-name">Ramsar Sites</span><span class="chk-count">18</span><button type="button" class="item-only-btn" data-type="ramsar_site" data-target="quiz" title="Test only Ramsar Sites">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="quiz-type-chk" data-type="river" data-group="india" checked><span class="chk-color" style="background:#0284c7;"></span><span class="item-name">Rivers</span><span class="chk-count">106</span><button type="button" class="item-only-btn" data-type="river" data-target="quiz" title="Test only Rivers">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="quiz-type-chk" data-type="mountain" data-group="india" checked><span class="chk-color" style="background:#854d0e;"></span><span class="item-name">Mountain Ranges</span><span class="chk-count">26</span><button type="button" class="item-only-btn" data-type="mountain" data-target="quiz" title="Test only Mountain Ranges">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="quiz-type-chk" data-type="peak" data-group="india" checked><span class="chk-color" style="background:#9333ea;"></span><span class="item-name">Peaks</span><span class="chk-count">21</span><button type="button" class="item-only-btn" data-type="peak" data-target="quiz" title="Test only Peaks">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="quiz-type-chk" data-type="pass" data-group="india" checked><span class="chk-color" style="background:#c2410c;"></span><span class="item-name">Passes</span><span class="chk-count">20</span><button type="button" class="item-only-btn" data-type="pass" data-target="quiz" title="Test only Passes">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="quiz-type-chk" data-type="glacier" data-group="india" checked><span class="chk-color" style="background:#0e7490;"></span><span class="item-name">Glaciers</span><span class="chk-count">10</span><button type="button" class="item-only-btn" data-type="glacier" data-target="quiz" title="Test only Glaciers">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="quiz-type-chk" data-type="states" data-group="india" checked><span class="chk-color" style="background:#64748b;"></span><span class="item-name">States &amp; UTs</span><span class="chk-count">36</span><button type="button" class="item-only-btn" data-type="states" data-target="quiz" title="Test only States &amp; UTs">only</button></label>
+                  </div>
+                </div>
+                <div class="dropdown-group">
+                  <div class="dropdown-group-header">
+                    <span>WORLD</span>
+                    <button type="button" class="group-select-btn" data-group="world" data-target="quiz">All</button>
+                  </div>
+                  <div class="dropdown-group-items">
+                    <label class="dropdown-item"><input type="checkbox" class="quiz-type-chk" data-type="country" data-group="world" checked><span class="chk-color" style="background:#2563eb;"></span><span class="item-name">Countries</span><span class="chk-count">195</span><button type="button" class="item-only-btn" data-type="country" data-target="quiz" title="Test only Countries">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="quiz-type-chk" data-type="current" data-group="world" checked><span class="chk-color" style="background:#0284c7;"></span><span class="item-name">Ocean Currents</span><span class="chk-count">30</span><button type="button" class="item-only-btn" data-type="current" data-target="quiz" title="Test only Ocean Currents">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="quiz-type-chk" data-type="wind" data-group="world" checked><span class="chk-color" style="background:#ea580c;"></span><span class="item-name">Local Winds</span><span class="chk-count">12</span><button type="button" class="item-only-btn" data-type="wind" data-target="quiz" title="Test only Local Winds">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="quiz-type-chk" data-type="lake" data-group="world" checked><span class="chk-color" style="background:#0ea5e9;"></span><span class="item-name">Lakes</span><span class="chk-count">35</span><button type="button" class="item-only-btn" data-type="lake" data-target="quiz" title="Test only Lakes">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="quiz-type-chk" data-type="desert" data-group="world" checked><span class="chk-color" style="background:#d97706;"></span><span class="item-name">Deserts</span><span class="chk-count">25</span><button type="button" class="item-only-btn" data-type="desert" data-target="quiz" title="Test only Deserts">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="quiz-type-chk" data-type="grassland" data-group="world" checked><span class="chk-color" style="background:#16a34a;"></span><span class="item-name">Grasslands</span><span class="chk-count">11</span><button type="button" class="item-only-btn" data-type="grassland" data-target="quiz" title="Test only Grasslands">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="quiz-type-chk" data-type="strait" data-group="world" checked><span class="chk-color" style="background:#0d9488;"></span><span class="item-name">Straits</span><span class="chk-count">34</span><button type="button" class="item-only-btn" data-type="strait" data-target="quiz" title="Test only Straits">only</button></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <select id="quizStyle" aria-label="Quiz style">
+              <option value="mcq">Multiple Choice</option>
+              <option value="map">Map Identification</option>
+              <option value="mixed">Mixed</option>
+            </select>
+            <button class="primary-btn" id="startQuiz">Start Quiz</button>
+          </div>
         </div>
         <div class="quiz-card" id="quizCard"></div>
         <div class="quiz-missed" id="quizMissed"></div>
@@ -167,32 +374,165 @@
           <h2>Recall Mode</h2>
           <p class="muted">Hide labels, recall facts, reveal answers</p>
         </div>
-        <div class="recall-controls">
-          <select id="recallContinent" aria-label="Recall continent">
-            <option value="">All Continents</option>
-            <option value="South America">South America</option>
-            <option value="Africa">Africa</option>
-            <option value="North America">North America</option>
-            <option value="Europe">Europe</option>
-            <option value="Asia">Asia</option>
-            <option value="Australia & Oceania">Australia &amp; Oceania</option>
-          </select>
-          <select id="recallType" aria-label="Recall type">
-            <option value="">All Types</option>
-            <option value="country">Countries</option>
-            <option value="mountain">Mountains</option>
-            <option value="river">Rivers</option>
-            <option value="lake">Lakes</option>
-            <option value="strait">Straits</option>
-            <option value="desert">Deserts</option>
-            <option value="grassland">Grasslands</option>
-          </select>
-          <button class="primary-btn" id="startRecall">Begin Recall</button>
+
+        <!-- Collapsible Recall Filter Drawer & Compact Active Bar -->
+        <div class="quiz-config-bar hidden" id="recallConfigBar">
+          <div class="config-summary" id="recallConfigSummary">
+            <span class="config-pill">🌐 All</span>
+            <span class="config-pill">All Types</span>
+          </div>
+          <button type="button" class="config-toggle-btn" id="recallConfigToggleBtn" title="Show/Hide Recall Filters">⚙ Filters</button>
+        </div>
+
+        <div class="quiz-filters-drawer" id="recallFiltersDrawer">
+          <div class="recall-controls">
+            <select id="recallContinent" aria-label="Recall region filter">
+              <option value="">All Continents</option>
+              <option value="India">🇮🇳 India Only</option>
+              <option value="South America">South America</option>
+              <option value="Africa">Africa</option>
+              <option value="North America">North America</option>
+              <option value="Europe">Europe</option>
+              <option value="Asia">Asia</option>
+              <option value="Australia & Oceania">Australia &amp; Oceania</option>
+            </select>
+
+            <!-- Grouped Multi-Select Dropdown for Recall Mode -->
+            <div class="sidebar-dropdown-wrapper" id="recallTypeWrapper">
+              <button type="button" class="sidebar-dropdown-trigger" id="recallTypeBtn" aria-haspopup="true" aria-expanded="false" title="Filter types to recall">
+                <span class="trigger-label" id="recallTypeLabel">All Types</span>
+                <span class="trigger-badge" id="recallTypeBadge">All</span>
+                <svg class="dropdown-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <div class="sidebar-dropdown-menu hidden" id="recallTypeMenu" role="menu">
+                <div class="dropdown-quick-actions">
+                  <button type="button" class="quick-pill-btn" data-action="all" data-target="recall">All</button>
+                  <button type="button" class="quick-pill-btn" data-action="india" data-target="recall">🇮🇳 India</button>
+                  <button type="button" class="quick-pill-btn" data-action="world" data-target="recall">🌐 World</button>
+                  <button type="button" class="quick-pill-btn" data-action="clear" data-target="recall">Clear</button>
+                </div>
+                <div class="dropdown-group">
+                  <div class="dropdown-group-header">
+                    <span>INDIA</span>
+                    <button type="button" class="group-select-btn" data-group="india" data-target="recall">All</button>
+                  </div>
+                  <div class="dropdown-group-items">
+                    <label class="dropdown-item"><input type="checkbox" class="recall-type-chk" data-type="national_park" data-group="india" checked><span class="chk-color" style="background:#15803d;"></span><span class="item-name">National Parks</span><span class="chk-count">106</span><button type="button" class="item-only-btn" data-type="national_park" data-target="recall" title="Recall only National Parks">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="recall-type-chk" data-type="tiger_reserve" data-group="india" checked><span class="chk-color" style="background:#78350f;"></span><span class="item-name">Tiger Reserves</span><span class="chk-count">23</span><button type="button" class="item-only-btn" data-type="tiger_reserve" data-target="recall" title="Recall only Tiger Reserves">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="recall-type-chk" data-type="biosphere_reserve" data-group="india" checked><span class="chk-color" style="background:#6b21a8;"></span><span class="item-name">Biosphere Reserves</span><span class="chk-count">18</span><button type="button" class="item-only-btn" data-type="biosphere_reserve" data-target="recall" title="Recall only Biosphere Reserves">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="recall-type-chk" data-type="ramsar_site" data-group="india" checked><span class="chk-color" style="background:#0f766e;"></span><span class="item-name">Ramsar Sites</span><span class="chk-count">18</span><button type="button" class="item-only-btn" data-type="ramsar_site" data-target="recall" title="Recall only Ramsar Sites">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="recall-type-chk" data-type="river" data-group="india" checked><span class="chk-color" style="background:#0284c7;"></span><span class="item-name">Rivers</span><span class="chk-count">106</span><button type="button" class="item-only-btn" data-type="river" data-target="recall" title="Recall only Rivers">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="recall-type-chk" data-type="mountain" data-group="india" checked><span class="chk-color" style="background:#854d0e;"></span><span class="item-name">Mountain Ranges</span><span class="chk-count">26</span><button type="button" class="item-only-btn" data-type="mountain" data-target="recall" title="Recall only Mountain Ranges">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="recall-type-chk" data-type="peak" data-group="india" checked><span class="chk-color" style="background:#9333ea;"></span><span class="item-name">Peaks</span><span class="chk-count">21</span><button type="button" class="item-only-btn" data-type="peak" data-target="recall" title="Recall only Peaks">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="recall-type-chk" data-type="pass" data-group="india" checked><span class="chk-color" style="background:#c2410c;"></span><span class="item-name">Passes</span><span class="chk-count">20</span><button type="button" class="item-only-btn" data-type="pass" data-target="recall" title="Recall only Passes">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="recall-type-chk" data-type="glacier" data-group="india" checked><span class="chk-color" style="background:#0e7490;"></span><span class="item-name">Glaciers</span><span class="chk-count">10</span><button type="button" class="item-only-btn" data-type="glacier" data-target="recall" title="Recall only Glaciers">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="recall-type-chk" data-type="states" data-group="india" checked><span class="chk-color" style="background:#64748b;"></span><span class="item-name">States &amp; UTs</span><span class="chk-count">36</span><button type="button" class="item-only-btn" data-type="states" data-target="recall" title="Recall only States &amp; UTs">only</button></label>
+                  </div>
+                </div>
+                <div class="dropdown-group">
+                  <div class="dropdown-group-header">
+                    <span>WORLD</span>
+                    <button type="button" class="group-select-btn" data-group="world" data-target="recall">All</button>
+                  </div>
+                  <div class="dropdown-group-items">
+                    <label class="dropdown-item"><input type="checkbox" class="recall-type-chk" data-type="country" data-group="world" checked><span class="chk-color" style="background:#2563eb;"></span><span class="item-name">Countries</span><span class="chk-count">195</span><button type="button" class="item-only-btn" data-type="country" data-target="recall" title="Recall only Countries">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="recall-type-chk" data-type="current" data-group="world" checked><span class="chk-color" style="background:#0284c7;"></span><span class="item-name">Ocean Currents</span><span class="chk-count">30</span><button type="button" class="item-only-btn" data-type="current" data-target="recall" title="Recall only Ocean Currents">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="recall-type-chk" data-type="wind" data-group="world" checked><span class="chk-color" style="background:#ea580c;"></span><span class="item-name">Local Winds</span><span class="chk-count">12</span><button type="button" class="item-only-btn" data-type="wind" data-target="recall" title="Recall only Local Winds">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="recall-type-chk" data-type="lake" data-group="world" checked><span class="chk-color" style="background:#0ea5e9;"></span><span class="item-name">Lakes</span><span class="chk-count">35</span><button type="button" class="item-only-btn" data-type="lake" data-target="recall" title="Recall only Lakes">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="recall-type-chk" data-type="desert" data-group="world" checked><span class="chk-color" style="background:#d97706;"></span><span class="item-name">Deserts</span><span class="chk-count">25</span><button type="button" class="item-only-btn" data-type="desert" data-target="recall" title="Recall only Deserts">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="recall-type-chk" data-type="grassland" data-group="world" checked><span class="chk-color" style="background:#16a34a;"></span><span class="item-name">Grasslands</span><span class="chk-count">11</span><button type="button" class="item-only-btn" data-type="grassland" data-target="recall" title="Recall only Grasslands">only</button></label>
+                    <label class="dropdown-item"><input type="checkbox" class="recall-type-chk" data-type="strait" data-group="world" checked><span class="chk-color" style="background:#0d9488;"></span><span class="item-name">Straits</span><span class="chk-count">34</span><button type="button" class="item-only-btn" data-type="strait" data-target="recall" title="Recall only Straits">only</button></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button class="primary-btn" id="startRecall">Begin Recall</button>
+          </div>
         </div>
         <div class="recall-card" id="recallCard"></div>
         <div class="recall-progress" id="recallProgress"></div>
       </div>
     </aside>
+
+    <!-- Map Stage (Right) -->
+    <div class="map-stage" id="mapStage">
+      <!-- High-Performance Interactive SVG Vector Map Stage (Zero Leaflet) -->
+      <div class="mp-stage" id="vectorMapStage" tabindex="0" role="region" aria-label="Interactive Vector Map"></div>
+
+      <!-- Map Overlays -->
+      <div class="map-overlays">
+        <div class="zoom-controls">
+          <button class="zoom-btn" id="zoomIn" aria-label="Zoom in">+</button>
+          <button class="zoom-btn" id="zoomOut" aria-label="Zoom out">−</button>
+        </div>
+        <div class="map-tooltip" id="mapTooltip"></div>
+
+        <!-- Atlas Symbols & Legends with Master Borders & Labels Switch on top -->
+        <div class="currents-legend" id="currentsLegend">
+          <div class="legend-toggles-bar">
+            <button class="map-pill-btn active" id="toggleBorders" title="Master switch: Toggle boundaries" aria-pressed="true">Borders</button>
+            <button class="map-pill-btn active" id="toggleLabels" title="Master switch: Toggle labels" aria-pressed="true">Labels</button>
+          </div>
+          <div class="currents-legend-title">Atlas Symbols &amp; Layers</div>
+          <div class="currents-legend-items">
+            <div class="currents-legend-item">
+              <span class="current-line warm"></span>
+              <span>Warm Current</span>
+            </div>
+            <div class="currents-legend-item">
+              <span class="current-line cold"></span>
+              <span>Cold Current</span>
+            </div>
+            <div class="currents-legend-item">
+              <span class="current-line" style="background:rgba(239, 68, 68, 0.45); box-shadow:0 0 6px rgba(239, 68, 68, 0.35);"></span>
+              <span>Warm Wind (Hot/Dry Shadow)</span>
+            </div>
+            <div class="currents-legend-item">
+              <span class="current-line" style="background:rgba(2, 132, 199, 0.45); box-shadow:0 0 6px rgba(2, 132, 199, 0.35);"></span>
+              <span>Cold Wind (Polar Shadow)</span>
+            </div>
+            <div class="currents-legend-item">
+              <span class="legend-badge" style="color:#15803d; font-size:12px;">🌲</span>
+              <span>National Park (Green zone)</span>
+            </div>
+            <div class="currents-legend-item">
+              <span class="legend-badge" style="color:#78350f; font-size:12px;">🐅</span>
+              <span>Tiger Reserve (Brown zone)</span>
+            </div>
+            <div class="currents-legend-item">
+              <span class="legend-badge" style="color:#854d0e; font-size:12px;">〰️</span>
+              <span>Mountain Range (Contour zone)</span>
+            </div>
+            <div class="currents-legend-item">
+              <span class="legend-badge" style="color:#9333ea; font-weight:bold;">▲</span>
+              <span>Mountain Peak (Snow cap)</span>
+            </div>
+            <div class="currents-legend-item">
+              <span class="legend-badge" style="color:#0ea5e9; font-weight:bold;">◆</span>
+              <span>Glacier (Crystalline ice)</span>
+            </div>
+            <div class="currents-legend-item">
+              <span class="legend-badge" style="color:#0284c7; font-weight:bold;">〜</span>
+              <span>Flowing River</span>
+            </div>
+            <div class="currents-legend-item">
+              <span class="legend-badge" style="color:#d97706; font-weight:bold;">☽</span>
+              <span>Desert Dune</span>
+            </div>
+            <div class="currents-legend-item">
+              <span class="legend-badge" style="color:#0d9488; font-weight:bold;">)(</span>
+              <span>Maritime Strait</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quiz highlight overlay -->
+      <div class="quiz-prompt-overlay hidden" id="quizPromptOverlay">
+        <div class="quiz-prompt-text" id="quizPromptText"></div>
+      </div>
+    </div>
   </div>
 
   <!-- Mobile Bottom Sheet -->
@@ -205,45 +545,33 @@
   <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-inner">
       <div class="loading-globe">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"></circle>
           <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
           <path d="M2 12h20"></path>
         </svg>
       </div>
-      <div class="loading-text">Loading World Mapping Atlas…</div>
+      <div class="loading-text">Loading Mapping Atlas…</div>
       <div class="loading-bar"><div class="loading-fill" id="loadingFill"></div></div>
-      <div class="loading-status" id="loadingStatus">Initialising…</div>
-    </div>
-  </div>
-
-  <!-- WebGL Fallback -->
-  <div class="webgl-fallback hidden" id="webglFallback">
-    <div class="fallback-inner">
-      <h2>Globe unavailable</h2>
-      <p>WebGL is not supported in this browser. You can still use Browse, Quiz and Recall modes in the panel on the right.</p>
-      <button class="primary-btn" id="dismissFallback">Continue without globe</button>
+      <div class="loading-status" id="loadingStatus">Initialising 2D cartography…</div>
     </div>
   </div>
 </div>
 
-<!-- Leaflet (Local) -->
-<script src="world-map/assets/js/vendor/leaflet.js"></script>
-<!-- External dependencies -->
-<script src="world-map/assets/js/vendor/globe.gl.min.js"></script>
-<!-- Application data & logic -->
-<script src="world-map/data/world-map-content.js"></script>
-<script src="world-map/data/geographic-features.js"></script>
-<script src="world-map/data/country-boundaries.js"></script>
-<script src="world-map/assets/js/data-integrity.js"></script>
-<script src="world-map/assets/js/globe.js"></script>
-<script src="world-map/assets/js/flat-map.js"></script>
-<script src="world-map/assets/js/entity-panel.js"></script>
-<script src="world-map/assets/js/search.js"></script>
-<script src="world-map/assets/js/quiz-engine.js"></script>
-<script src="world-map/assets/js/recall-mode.js"></script>
-<script src="world-map/assets/js/progress.js"></script>
-<script src="world-map/assets/js/navigation.js"></script>
-<script src="world-map/assets/js/app.js"></script>
+<!-- Application vector data & logic -->
+<script src="world-map/data/world-map-content.js?v=7"></script>
+<script src="world-map/data/geographic-features.js?v=7"></script>
+<script src="world-map/data/boundaries-data.js?v=7"></script>
+<script src="world-map/data/ocean-currents.js?v=7"></script>
+<script src="world-map/data/local-winds.js?v=7"></script>
+<script src="world-map/assets/js/data-integrity.js?v=7"></script>
+<script src="world-map/assets/js/vector-map.js?v=7"></script>
+<script src="world-map/assets/js/entity-panel.js?v=7"></script>
+<script src="world-map/assets/js/search.js?v=7"></script>
+<script src="world-map/assets/js/quiz-engine.js?v=7"></script>
+<script src="world-map/assets/js/recall-mode.js?v=7"></script>
+<script src="world-map/assets/js/progress.js?v=7"></script>
+<script src="world-map/assets/js/navigation.js?v=7"></script>
+<script src="world-map/assets/js/app.js?v=7"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 /**
- * World Mapping Atlas — Search and Filter Controller
- * Real-time fuzzy query filtering with continent and category facet support.
+ * Mapping Atlas — Search and Filter Controller
+ * Real-time fuzzy query filtering with 'All words' and 'Any word' facet support.
  */
 
 window.WORLD_SEARCH = (function () {
@@ -9,10 +9,12 @@ window.WORLD_SEARCH = (function () {
   let currentCategory = 'all';
   let currentContinent = '';
   let currentQuery = '';
+  let searchMode = 'all';
   let debounceTimer = null;
 
   function init() {
     const searchInput = document.getElementById('searchInput');
+    const searchModeSelect = document.getElementById('searchModeSelect');
     const continentSelect = document.getElementById('continentSelect');
     const filterChips = document.getElementById('browseFilters');
 
@@ -22,7 +24,14 @@ window.WORLD_SEARCH = (function () {
         debounceTimer = setTimeout(() => {
           currentQuery = e.target.value;
           applyFilters();
-        }, 150);
+        }, 120);
+      });
+    }
+
+    if (searchModeSelect) {
+      searchModeSelect.addEventListener('change', e => {
+        searchMode = e.target.value;
+        applyFilters();
       });
     }
 
@@ -55,7 +64,16 @@ window.WORLD_SEARCH = (function () {
     if (window.ENTITY_PANEL.showList) {
       window.ENTITY_PANEL.showList();
     }
-    const filtered = window.DATA_INTEGRITY.search(currentQuery, currentContinent, currentCategory);
+    let filtered = window.DATA_INTEGRITY.search(currentQuery, currentContinent, currentCategory, searchMode);
+
+    // Synchronize with Top-Right Multi-Select Layer Dropdown
+    if (window.WORLD_VECTOR_MAP && window.WORLD_VECTOR_MAP.isCategoryActive) {
+      filtered = filtered.filter(item => {
+        const cat = item.category || item.type;
+        return window.WORLD_VECTOR_MAP.isCategoryActive(cat);
+      });
+    }
+
     window.ENTITY_PANEL.renderList(filtered);
   }
 

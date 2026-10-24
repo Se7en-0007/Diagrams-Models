@@ -1,6 +1,6 @@
 /**
- * World Mapping Atlas — Main Application Orchestrator
- * Bootstraps data indices, 3D cartographic globe, 2D Leaflet map, and UI controllers.
+ * Mapping Atlas — Main Application Orchestrator
+ * Bootstraps data indices, 2D Leaflet cartographic map, ocean currents, and UI controllers.
  */
 
 window.WORLD_APP = (function () {
@@ -23,34 +23,25 @@ window.WORLD_APP = (function () {
   }
 
   function init() {
-    updateLoading(20, 'Loading geographic database…');
+    updateLoading(20, 'Loading geographic database & currents…');
 
     // 1. Data Integrity & Indexing
     if (window.DATA_INTEGRITY) {
       window.DATA_INTEGRITY.init();
     }
 
-    updateLoading(40, 'Initialising navigation and controls…');
+    updateLoading(45, 'Initialising navigation and controls…');
 
-    // 2. Navigation & UI Controls
+    // 2. Navigation & UI Controls (including Dark/Light theme)
     if (window.WORLD_NAV) window.WORLD_NAV.init();
 
-    updateLoading(65, 'Initialising 3D cartographic globe…');
+    updateLoading(70, 'Initialising high-performance vector map…');
 
-    // 3. Initialize 3D Globe
-    let globeOk = false;
-    if (window.WORLD_GLOBE) {
-      globeOk = window.WORLD_GLOBE.init('globeContainer');
-    }
-
-    // WebGL fallback -> smoothly switch to 2D Leaflet flat map
-    if (!globeOk) {
-      console.warn('3D Globe unavailable — activating 2D Leaflet flat map.');
-      const fallbackEl = document.getElementById('webglFallback');
-      if (fallbackEl) fallbackEl.classList.remove('hidden');
-      const dismissBtn = document.getElementById('dismissFallback');
-      if (dismissBtn) dismissBtn.addEventListener('click', () => fallbackEl.classList.add('hidden'));
-      if (window.WORLD_NAV) window.WORLD_NAV.toggleMapView();
+    // 3. Initialize Native SVG Vector Map (Zero Leaflet)
+    if (window.WORLD_VECTOR_MAP) {
+      window.WORLD_VECTOR_MAP.init();
+    } else if (window.WORLD_FLAT_MAP) {
+      window.WORLD_FLAT_MAP.init();
     }
 
     // 4. Search & Filtering
@@ -74,7 +65,9 @@ window.WORLD_APP = (function () {
     if (!id || !window.DATA_INTEGRITY) return;
 
     const currentMode = window.WORLD_NAV ? window.WORLD_NAV.getMode() : 'browse';
-    if (currentMode !== 'browse') return;
+    if (currentMode !== 'browse' && window.WORLD_NAV && window.WORLD_NAV.setMode) {
+      window.WORLD_NAV.setMode('browse');
+    }
 
     const entity = window.DATA_INTEGRITY.getEntity(id);
     if (!entity) return;
@@ -82,12 +75,11 @@ window.WORLD_APP = (function () {
     // Track progress
     if (window.WORLD_PROGRESS) window.WORLD_PROGRESS.markViewed(id);
 
-    // Update active map (Globe or Flat Map)
-    const isFlat = window.WORLD_NAV && window.WORLD_NAV.isFlat();
-    if (isFlat && window.WORLD_FLAT_MAP && window.WORLD_FLAT_MAP.isReady()) {
+    // Update Native SVG Vector Map
+    if (window.WORLD_VECTOR_MAP && window.WORLD_VECTOR_MAP.isReady()) {
+      window.WORLD_VECTOR_MAP.selectEntity(id, shouldPan);
+    } else if (window.WORLD_FLAT_MAP && window.WORLD_FLAT_MAP.isReady()) {
       window.WORLD_FLAT_MAP.selectEntity(id, shouldPan);
-    } else if (window.WORLD_GLOBE && window.WORLD_GLOBE.isReady()) {
-      window.WORLD_GLOBE.selectEntity(id, shouldPan);
     }
 
     // Render detail panel in Browse mode

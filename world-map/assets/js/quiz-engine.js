@@ -1,11 +1,12 @@
 /**
- * World Mapping Atlas — UPSC CSE Map Identification Quiz Engine
- * Visual Cartographic Quiz inspired by Ocean Currents Atlas:
- * 1. Pinned location pulses on the 3D globe / 2D flat map at close zoom with label hidden.
- * 2. User observes the pin and names the feature from 4 confusing, plausible options.
- * 3. Immediate feedback reveals the label on the map, explains UPSC relevance, and advances.
- * 4. Non-repetitive: quizzes all features matching selected continent/type without artificial caps.
- * 5. Full support for both 3D Globe and 2D Flat Map.
+ * World Mapping Atlas — UPSC CSE Map Identification Quiz Engine (Revamped)
+ * 1. Pinned location pulses on the 2D vector map at close zoom with label hidden.
+ * 2. User observes the pin and identifies the feature from 4 distinct, plausible options.
+ * 3. Minimized top bar: When quiz starts, heavy dropdowns collapse into a sleek, 1-line
+ *    summary bar to keep 100% focus on the question and map.
+ * 4. Human-grammatical questions for all categories (Ocean Currents, Local Winds, Parks, Rivers, etc.).
+ * 5. Immediate feedback reveals the label on the map, displays UPSC relevance, and advances.
+ * 6. Keyboard navigation: A, B, C, D (or 1, 2, 3, 4) to answer; Enter to advance.
  */
 
 window.WORLD_QUIZ = (function () {
@@ -17,42 +18,271 @@ window.WORLD_QUIZ = (function () {
   let answered = false;
   let activeQuestion = null;
   let missedItems = [];
+  let keyboardHandlerAttached = false;
+  let userOverriddenFilters = false;
+
+  const allCategoryKeys = [
+    'national_park', 'tiger_reserve', 'biosphere_reserve', 'ramsar_site',
+    'river', 'mountain', 'peak', 'pass', 'glacier', 'states',
+    'current', 'wind', 'country', 'lake', 'desert', 'grassland', 'strait'
+  ];
+
+  const categoryNames = {
+    national_park: 'National Parks',
+    tiger_reserve: 'Tiger Reserves',
+    biosphere_reserve: 'Biosphere Reserves',
+    ramsar_site: 'Ramsar Sites',
+    river: 'Rivers',
+    mountain: 'Mountain Ranges',
+    peak: 'Peaks',
+    pass: 'Passes',
+    glacier: 'Glaciers',
+    states: 'States & UTs',
+    current: 'Ocean Currents',
+    wind: 'Local Winds',
+    country: 'Countries',
+    lake: 'Lakes',
+    desert: 'Deserts',
+    grassland: 'Grasslands',
+    strait: 'Straits'
+  };
+
+  const selectedTypes = new Set(allCategoryKeys);
 
   function init() {
     const startBtn = document.getElementById('startQuiz');
     const continentSelect = document.getElementById('quizContinent');
-    const typeSelect = document.getElementById('quizType');
+    const toggleFiltersBtn = document.getElementById('quizConfigToggleBtn') || document.getElementById('btnToggleQuizFilters');
 
     if (startBtn) {
       startBtn.addEventListener('click', () => startQuiz());
     }
     if (continentSelect) {
-      continentSelect.addEventListener('change', () => startQuiz());
+      continentSelect.addEventListener('change', () => {
+        updateConfigSummary();
+      });
     }
-    if (typeSelect) {
-      typeSelect.addEventListener('change', () => startQuiz());
+    if (toggleFiltersBtn) {
+      toggleFiltersBtn.addEventListener('click', () => toggleFiltersDrawer());
+    }
+
+    initTypeMultiSelect();
+    attachKeyboardShortcuts();
+  }
+
+  function initTypeMultiSelect() {
+    const triggerBtn = document.getElementById('quizTypeBtn');
+    const menuEl = document.getElementById('quizTypeMenu');
+    if (!triggerBtn || !menuEl) return;
+
+    triggerBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isHidden = menuEl.classList.toggle('hidden');
+      triggerBtn.setAttribute('aria-expanded', !isHidden);
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!menuEl.contains(e.target) && !triggerBtn.contains(e.target)) {
+        menuEl.classList.add('hidden');
+        triggerBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // Checkbox toggles
+    menuEl.querySelectorAll('.quiz-type-chk').forEach(chk => {
+      chk.addEventListener('change', () => {
+        userOverriddenFilters = true;
+        const type = chk.dataset.type;
+        if (chk.checked) selectedTypes.add(type);
+        else selectedTypes.delete(type);
+        updateTypeUI();
+      });
+    });
+
+    // Quick Action Pills
+    menuEl.querySelectorAll('.quick-pill-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userOverriddenFilters = true;
+        const action = btn.dataset.action;
+        const chks = menuEl.querySelectorAll('.quiz-type-chk');
+        if (action === 'all') {
+          chks.forEach(c => { c.checked = true; selectedTypes.add(c.dataset.type); });
+        } else if (action === 'india') {
+          chks.forEach(c => {
+            const isInd = c.dataset.group === 'india';
+            c.checked = isInd;
+            if (isInd) selectedTypes.add(c.dataset.type);
+            else selectedTypes.delete(c.dataset.type);
+          });
+        } else if (action === 'world') {
+          chks.forEach(c => {
+            const isWld = c.dataset.group === 'world';
+            c.checked = isWld;
+            if (isWld) selectedTypes.add(c.dataset.type);
+            else selectedTypes.delete(c.dataset.type);
+          });
+        } else if (action === 'clear') {
+          chks.forEach(c => { c.checked = false; selectedTypes.delete(c.dataset.type); });
+        }
+        updateTypeUI();
+      });
+    });
+
+    // Group header select buttons
+    menuEl.querySelectorAll('.group-select-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userOverriddenFilters = true;
+        const grp = btn.dataset.group;
+        const grpChks = menuEl.querySelectorAll(`.quiz-type-chk[data-group="${grp}"]`);
+        const allChecked = Array.from(grpChks).every(c => c.checked);
+        grpChks.forEach(c => {
+          c.checked = !allChecked;
+          if (!allChecked) selectedTypes.add(c.dataset.type);
+          else selectedTypes.delete(c.dataset.type);
+        });
+        updateTypeUI();
+      });
+    });
+
+    // "only" buttons per type (isolate single item alone)
+    menuEl.querySelectorAll('.item-only-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        userOverriddenFilters = true;
+        const targetType = btn.dataset.type;
+        selectedTypes.clear();
+        menuEl.querySelectorAll('.quiz-type-chk').forEach(c => {
+          const isMatch = (c.dataset.type === targetType);
+          c.checked = isMatch;
+          if (isMatch) selectedTypes.add(targetType);
+        });
+        updateTypeUI();
+      });
+    });
+
+    syncWithActiveKinds(true);
+  }
+
+  function syncWithActiveKinds(force = false) {
+    if (userOverriddenFilters && !force) return;
+    if (!window.WORLD_VECTOR_MAP || !window.WORLD_VECTOR_MAP.getActiveFilters) return;
+
+    const activeMapFilters = window.WORLD_VECTOR_MAP.getActiveFilters();
+    selectedTypes.clear();
+
+    const menuEl = document.getElementById('quizTypeMenu');
+    if (menuEl) {
+      menuEl.querySelectorAll('.quiz-type-chk').forEach(chk => {
+        const type = chk.dataset.type;
+        const isActive = Boolean(activeMapFilters[type]);
+        chk.checked = isActive;
+        if (isActive) selectedTypes.add(type);
+      });
+    } else {
+      allCategoryKeys.forEach(k => {
+        if (activeMapFilters[k]) selectedTypes.add(k);
+      });
+    }
+
+    updateTypeUI();
+  }
+
+  function updateTypeUI() {
+    const labelEl = document.getElementById('quizTypeLabel');
+    const badgeEl = document.getElementById('quizTypeBadge');
+    if (!labelEl || !badgeEl) return;
+
+    if (selectedTypes.size === 0) {
+      labelEl.textContent = 'None selected';
+      badgeEl.textContent = '0';
+    } else if (selectedTypes.size === allCategoryKeys.length) {
+      labelEl.textContent = 'All Types';
+      badgeEl.textContent = 'All';
+    } else if (selectedTypes.size <= 2) {
+      const names = Array.from(selectedTypes).map(k => categoryNames[k] || k).join(', ');
+      labelEl.textContent = names;
+      badgeEl.textContent = `${selectedTypes.size}`;
+    } else {
+      labelEl.textContent = `${selectedTypes.size} types selected`;
+      badgeEl.textContent = `${selectedTypes.size}`;
+    }
+
+    updateConfigSummary();
+  }
+
+  function updateConfigSummary() {
+    const regEl = document.getElementById('quizSummaryRegion');
+    const typEl = document.getElementById('quizSummaryTypes');
+    const styEl = document.getElementById('quizSummaryStyle');
+    const continentSelect = document.getElementById('quizContinent');
+    const styleSelect = document.getElementById('quizStyle');
+
+    const reg = continentSelect ? continentSelect.value.trim() : '';
+    if (regEl) regEl.textContent = reg ? (reg === 'India' ? '🇮🇳 India' : reg) : '🌐 All Continents';
+    if (typEl) typEl.textContent = selectedTypes.size === allCategoryKeys.length ? 'All Types' : `${selectedTypes.size} Types`;
+    if (styEl) {
+      const styVal = styleSelect ? styleSelect.value : 'mcq';
+      styEl.textContent = styVal === 'mcq' ? 'MCQ' : (styVal === 'map' ? 'Map Pin' : 'Mixed');
+    }
+  }
+
+  function toggleFiltersDrawer(forceOpen = null) {
+    const drawer = document.getElementById('quizFiltersDrawer');
+    const toggleText = document.getElementById('quizToggleText');
+    const toggleBtn = document.getElementById('quizConfigToggleBtn') || document.getElementById('btnToggleQuizFilters');
+    if (!drawer) return;
+
+    const shouldCollapse = forceOpen !== null ? !forceOpen : !drawer.classList.contains('collapsed');
+    if (shouldCollapse) {
+      drawer.classList.add('collapsed');
+      if (toggleText) toggleText.textContent = 'Edit Filters';
+      if (toggleBtn) {
+        toggleBtn.classList.remove('active');
+        toggleBtn.innerHTML = '⚙ Filters';
+      }
+    } else {
+      drawer.classList.remove('collapsed');
+      if (toggleText) toggleText.textContent = 'Hide Filters';
+      if (toggleBtn) {
+        toggleBtn.classList.add('active');
+        toggleBtn.innerHTML = '✕ Close';
+      }
     }
   }
 
   function startQuiz(retryDeck = null) {
     if (!window.DATA_INTEGRITY) return;
 
+    if (!userOverriddenFilters) {
+      syncWithActiveKinds(false);
+    }
+
     if (Array.isArray(retryDeck) && retryDeck.length > 0) {
       currentDeck = shuffleArray(retryDeck);
     } else {
       const continentSelect = document.getElementById('quizContinent');
-      const typeSelect = document.getElementById('quizType');
-
       const continentVal = continentSelect ? continentSelect.value.trim() : '';
-      const typeVal = typeSelect ? typeSelect.value.trim() : '';
 
       let pool = window.DATA_INTEGRITY.getAll();
 
-      if (continentVal) {
+      // Region Filter
+      if (continentVal === 'India') {
+        pool = pool.filter(e => e.group === 'india' || e.state || e.continent === 'India');
+      } else if (continentVal) {
         pool = pool.filter(e => e.continent === continentVal);
       }
-      if (typeVal && typeVal !== 'fact') {
-        pool = pool.filter(e => e.category === typeVal);
+
+      // Grouped Multi-Type Selection Filter
+      if (selectedTypes.size > 0 && selectedTypes.size < allCategoryKeys.length) {
+        pool = pool.filter(e => {
+          const cat = e.category || e.type;
+          return selectedTypes.has(cat);
+        });
+      } else if (selectedTypes.size === 0) {
+        pool = [];
       }
 
       if (pool.length === 0) {
@@ -61,14 +291,14 @@ window.WORLD_QUIZ = (function () {
           cardEl.innerHTML = `
             <div class="empty-state">
               <div class="empty-title">No Features Found</div>
-              <p class="empty-desc">No features match "${typeVal || 'All Types'}" in "${continentVal || 'All Continents'}". Please choose another combination.</p>
+              <p class="empty-desc">No features match the selected types in "${continentVal || 'All Continents'}". Please check at least one type in the filters above.</p>
             </div>
           `;
         }
+        toggleFiltersDrawer(true);
         return;
       }
 
-      // Non-repetitive: full deck of all matching entities
       currentDeck = shuffleArray(pool);
     }
 
@@ -77,7 +307,55 @@ window.WORLD_QUIZ = (function () {
     missedItems = [];
     answered = false;
 
+    // Minimize filter dropdowns to focus 100% on Question + Map
+    updateConfigSummary();
+    const configBar = document.getElementById('quizConfigBar');
+    if (configBar) configBar.classList.remove('hidden');
+    toggleFiltersDrawer(false);
+
     renderQuestion();
+  }
+
+  function getQuestionPrompt(entity) {
+    const cat = entity.category || entity.type;
+    switch (cat) {
+      case 'current':
+        return 'Which ocean current flows along this highlighted path?';
+      case 'wind':
+        return 'Which local wind blows across this highlighted region?';
+      case 'national_park':
+        return 'Which National Park is located at this pinned location?';
+      case 'tiger_reserve':
+        return 'Which Tiger Reserve is located at this pinned location?';
+      case 'biosphere_reserve':
+        return 'Which Biosphere Reserve is located here?';
+      case 'ramsar_site':
+        return 'Which Ramsar Wetland Site is located here?';
+      case 'river':
+        return 'Which river flows along this highlighted course?';
+      case 'mountain':
+        return 'Which mountain range is outlined here?';
+      case 'peak':
+        return 'Which prominent summit is located at this peak?';
+      case 'pass':
+        return 'Which mountain pass traverses this location?';
+      case 'glacier':
+        return 'Which glacier is located at these coordinates?';
+      case 'states':
+        return 'Which Indian State / UT is highlighted here?';
+      case 'country':
+        return 'Which country is outlined on the map?';
+      case 'lake':
+        return 'Which lake or inland water body is located here?';
+      case 'desert':
+        return 'Which desert or arid region is located here?';
+      case 'grassland':
+        return 'Which grassland or savanna plateau is located here?';
+      case 'strait':
+        return 'Which strait or maritime passage is located here?';
+      default:
+        return `What is the name of this ${(categoryNames[cat] || cat || 'feature')}?`;
+    }
   }
 
   function renderQuestion() {
@@ -103,37 +381,41 @@ window.WORLD_QUIZ = (function () {
       fillEl.style.width = `${((currentIndex) / currentDeck.length) * 100}%`;
     }
 
-    // Pin location on both 3D Globe and 2D Flat Map
-    if (window.WORLD_GLOBE && window.WORLD_GLOBE.setQuizTarget) {
-      window.WORLD_GLOBE.setQuizTarget(targetEntity.id);
-    }
-    if (window.WORLD_FLAT_MAP && window.WORLD_FLAT_MAP.setQuizTarget) {
+    // Pin location on 2D Vector Map
+    if (window.WORLD_VECTOR_MAP && window.WORLD_VECTOR_MAP.setQuizTarget) {
+      window.WORLD_VECTOR_MAP.setQuizTarget(targetEntity);
+    } else if (window.WORLD_FLAT_MAP && window.WORLD_FLAT_MAP.setQuizTarget) {
       window.WORLD_FLAT_MAP.setQuizTarget(targetEntity.id);
     }
+
+    const catName = categoryNames[targetEntity.category] || (targetEntity.categoryName || targetEntity.category).toUpperCase();
+    const subLocation = targetEntity.region || targetEntity.state || targetEntity.continent || '';
 
     // Render Question Card
     cardEl.innerHTML = `
       <div class="quiz-active-container">
-        <!-- Badge row -->
+        <!-- Top Tags Row -->
         <div class="detail-top-tags">
           <span class="category-pill" style="border-color:var(--accent2); color:var(--accent2);">
-            ${escapeHtml(targetEntity.category.toUpperCase())}
+            ${escapeHtml(catName)}
           </span>
-          <span class="continent-pill">
-            ${escapeHtml(targetEntity.continent)}
-          </span>
+          ${subLocation ? `
+            <span class="continent-pill">
+              ${escapeHtml(subLocation)}
+            </span>
+          ` : ''}
         </div>
 
         <!-- Prompt Heading -->
         <div class="quiz-prompt-header">
-          <span class="quiz-step-tag">Observe Pinned Location</span>
-          <h2 class="quiz-question-title">What is the name of this ${escapeHtml(targetEntity.category)}?</h2>
+          <span class="quiz-step-tag">Observe Pinned Location on Map</span>
+          <h2 class="quiz-question-title">${getQuestionPrompt(targetEntity)}</h2>
         </div>
 
         <!-- 4 Options -->
         <div class="quiz-options-grid" id="quizOptionsGrid">
           ${activeQuestion.options.map((opt, i) => `
-            <button class="quiz-opt-btn" data-index="${i}" tabindex="0">
+            <button type="button" class="quiz-opt-btn" data-index="${i}" tabindex="0">
               <span class="opt-badge">${String.fromCharCode(65 + i)}</span>
               <span class="opt-text">${escapeHtml(opt)}</span>
             </button>
@@ -175,11 +457,10 @@ window.WORLD_QUIZ = (function () {
       fillEl.style.width = `${((currentIndex + 1) / currentDeck.length) * 100}%`;
     }
 
-    // Reveal answer on both 3D Globe and 2D Flat Map
-    if (window.WORLD_GLOBE && window.WORLD_GLOBE.revealQuizAnswer) {
-      window.WORLD_GLOBE.revealQuizAnswer(activeQuestion.target.id);
-    }
-    if (window.WORLD_FLAT_MAP && window.WORLD_FLAT_MAP.revealQuizAnswer) {
+    // Reveal answer on 2D Vector Map
+    if (window.WORLD_VECTOR_MAP && window.WORLD_VECTOR_MAP.revealQuizAnswer) {
+      window.WORLD_VECTOR_MAP.revealQuizAnswer(activeQuestion.target.id);
+    } else if (window.WORLD_FLAT_MAP && window.WORLD_FLAT_MAP.revealQuizAnswer) {
       window.WORLD_FLAT_MAP.revealQuizAnswer(activeQuestion.target.id, isCorrect);
     }
 
@@ -207,16 +488,20 @@ window.WORLD_QUIZ = (function () {
             <span class="correct-name">${escapeHtml(activeQuestion.target.name)}</span>
           </div>
           <p class="feedback-text">${escapeHtml(activeQuestion.explanation)}</p>
-          <button class="primary-btn feedback-next-btn" id="btnNextQuiz">
+          <button type="button" class="primary-btn feedback-next-btn" id="btnNextQuiz">
             ${isLast ? 'Complete Round →' : 'Next Question →'}
           </button>
         </div>
       `;
 
-      feedbackEl.querySelector('#btnNextQuiz').addEventListener('click', () => {
-        currentIndex++;
-        renderQuestion();
-      });
+      const nextBtn = feedbackEl.querySelector('#btnNextQuiz');
+      if (nextBtn) {
+        nextBtn.focus();
+        nextBtn.addEventListener('click', () => {
+          currentIndex++;
+          renderQuestion();
+        });
+      }
     }
   }
 
@@ -227,6 +512,10 @@ window.WORLD_QUIZ = (function () {
 
     if (fillEl) fillEl.style.width = '100%';
 
+    if (window.WORLD_VECTOR_MAP && window.WORLD_VECTOR_MAP.clearQuizTarget) {
+      window.WORLD_VECTOR_MAP.clearQuizTarget();
+    }
+
     const pct = Math.round((score / currentDeck.length) * 100);
 
     cardEl.innerHTML = `
@@ -235,8 +524,9 @@ window.WORLD_QUIZ = (function () {
         <div class="summary-score-big">${pct}%</div>
         <p class="summary-desc">You correctly identified ${score} out of ${currentDeck.length} features.</p>
         <div class="summary-actions">
-          <button class="primary-btn" id="btnRestartQuiz">Practice Again</button>
-          ${missedItems.length > 0 ? `<button class="secondary-btn" id="btnRetryMissed">Retry Missed (${missedItems.length})</button>` : ''}
+          <button type="button" class="primary-btn" id="btnRestartQuiz">Practice Again</button>
+          ${missedItems.length > 0 ? `<button type="button" class="secondary-btn" id="btnRetryMissed">Retry Missed (${missedItems.length})</button>` : ''}
+          <button type="button" class="secondary-btn" id="btnChangeSettings">Change Filters</button>
         </div>
       </div>
     `;
@@ -245,6 +535,10 @@ window.WORLD_QUIZ = (function () {
     const retryBtn = cardEl.querySelector('#btnRetryMissed');
     if (retryBtn) {
       retryBtn.addEventListener('click', () => startQuiz(missedItems));
+    }
+    const changeBtn = cardEl.querySelector('#btnChangeSettings');
+    if (changeBtn) {
+      changeBtn.addEventListener('click', () => toggleFiltersDrawer(true));
     }
   }
 
@@ -275,6 +569,12 @@ window.WORLD_QUIZ = (function () {
     const correctIndex = options.indexOf(targetEntity.name);
 
     let explanation = targetEntity.description || '';
+    if (targetEntity.nature) {
+      explanation += ` · Nature: ${targetEntity.nature}`;
+    }
+    if (targetEntity.effect) {
+      explanation += ` · Effect: ${targetEntity.effect}`;
+    }
     if (targetEntity.upscNotes) {
       explanation += ` · High-Yield Insight: ${targetEntity.upscNotes}`;
     }
@@ -285,6 +585,41 @@ window.WORLD_QUIZ = (function () {
       correctIndex: correctIndex,
       explanation: explanation
     };
+  }
+
+  function attachKeyboardShortcuts() {
+    if (keyboardHandlerAttached) return;
+    keyboardHandlerAttached = true;
+
+    window.addEventListener('keydown', (e) => {
+      const quizPanel = document.getElementById('quizPanel');
+      if (!quizPanel || quizPanel.classList.contains('hidden')) return;
+
+      // When answered, pressing Enter or Space advances
+      if (answered) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          const nextBtn = document.getElementById('btnNextQuiz');
+          if (nextBtn) {
+            e.preventDefault();
+            nextBtn.click();
+          }
+        }
+        return;
+      }
+
+      // Keys 1/2/3/4 or A/B/C/D select options
+      const key = e.key.toUpperCase();
+      let optIdx = -1;
+      if (key === 'A' || key === '1') optIdx = 0;
+      else if (key === 'B' || key === '2') optIdx = 1;
+      else if (key === 'C' || key === '3') optIdx = 2;
+      else if (key === 'D' || key === '4') optIdx = 3;
+
+      if (optIdx >= 0 && activeQuestion && optIdx < activeQuestion.options.length) {
+        e.preventDefault();
+        handleAnswer(optIdx);
+      }
+    });
   }
 
   function shuffleArray(arr) {
@@ -303,6 +638,8 @@ window.WORLD_QUIZ = (function () {
 
   return {
     init: init,
-    startQuiz: startQuiz
+    startQuiz: startQuiz,
+    toggleFiltersDrawer: toggleFiltersDrawer,
+    syncWithActiveKinds: syncWithActiveKinds
   };
 })();

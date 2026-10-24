@@ -1,14 +1,15 @@
 /**
- * World Mapping Atlas — Active Spatial Recall Mode
- * Directly modeled on Ocean Currents Atlas:
- * 1. Shows a plain simple feature name: "Tap this [category] on the map: [Name]"
- * 2. User rotates the 3D globe or navigates the 2D flat map and clicks on the target.
- * 3. On click (correct or wrong), stays 100% in Recall mode:
- *    - If correct: "✓ Correct!"
+ * World Mapping Atlas — Active Spatial Recall Mode (Revamped)
+ * 1. Shows a prompt: "Find and tap this [category] on the map: [Name]"
+ * 2. User explores the 2D vector map and taps the target location.
+ * 3. Minimized top bar: When recall begins, heavy controls collapse into a sleek, 1-line
+ *    summary bar to keep 100% focus on the map and active recall.
+ * 4. Immediate feedback:
+ *    - If correct: "✓ Correct Location!"
  *    - If wrong: "✗ Not quite · you tapped [Tapped Name]"
- *    - Zooms camera to the location, pulses ring/marker, and reveals full UPSC study card.
- * 4. Functional dropdown filters (Continent + Feature Type) with non-repetitive complete decks.
- * 5. Full support for both 3D Globe and 2D Flat Map.
+ *    - Zooms to location, pulses highlight ring, and reveals full UPSC study card.
+ * 5. Full support for Local Winds, Ocean Currents, National Parks, Rivers, Mountains, etc.
+ * 6. Enter or Space key to advance to next card.
  */
 
 window.WORLD_RECALL = (function () {
@@ -20,42 +21,265 @@ window.WORLD_RECALL = (function () {
   let activeEntity = null;
   let isAnswered = false;
   let missedItems = [];
+  let keyboardHandlerAttached = false;
+  let userOverriddenFilters = false;
+
+  const allCategoryKeys = [
+    'national_park', 'tiger_reserve', 'biosphere_reserve', 'ramsar_site',
+    'river', 'mountain', 'peak', 'pass', 'glacier', 'states',
+    'current', 'wind', 'country', 'lake', 'desert', 'grassland', 'strait'
+  ];
+
+  const categoryNames = {
+    national_park: 'National Parks',
+    tiger_reserve: 'Tiger Reserves',
+    biosphere_reserve: 'Biosphere Reserves',
+    ramsar_site: 'Ramsar Sites',
+    river: 'Rivers',
+    mountain: 'Mountain Ranges',
+    peak: 'Peaks',
+    pass: 'Passes',
+    glacier: 'Glaciers',
+    states: 'States & UTs',
+    current: 'Ocean Currents',
+    wind: 'Local Winds',
+    country: 'Countries',
+    lake: 'Lakes',
+    desert: 'Deserts',
+    grassland: 'Grasslands',
+    strait: 'Straits'
+  };
+
+  const selectedTypes = new Set(allCategoryKeys);
 
   function init() {
     const startBtn = document.getElementById('startRecall');
     const continentSelect = document.getElementById('recallContinent');
-    const typeSelect = document.getElementById('recallType');
+    const toggleFiltersBtn = document.getElementById('recallConfigToggleBtn') || document.getElementById('btnToggleRecallFilters');
 
     if (startBtn) {
       startBtn.addEventListener('click', () => startRecall());
     }
     if (continentSelect) {
-      continentSelect.addEventListener('change', () => startRecall());
+      continentSelect.addEventListener('change', () => {
+        updateRecallConfigSummary();
+      });
     }
-    if (typeSelect) {
-      typeSelect.addEventListener('change', () => startRecall());
+    if (toggleFiltersBtn) {
+      toggleFiltersBtn.addEventListener('click', () => toggleRecallDrawer());
+    }
+
+    initRecallTypeMultiSelect();
+    attachKeyboardShortcuts();
+  }
+
+  function initRecallTypeMultiSelect() {
+    const triggerBtn = document.getElementById('recallTypeBtn');
+    const menuEl = document.getElementById('recallTypeMenu');
+    if (!triggerBtn || !menuEl) return;
+
+    triggerBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isHidden = menuEl.classList.toggle('hidden');
+      triggerBtn.setAttribute('aria-expanded', !isHidden);
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!menuEl.contains(e.target) && !triggerBtn.contains(e.target)) {
+        menuEl.classList.add('hidden');
+        triggerBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // Checkbox toggles
+    menuEl.querySelectorAll('.recall-type-chk').forEach(chk => {
+      chk.addEventListener('change', () => {
+        userOverriddenFilters = true;
+        const type = chk.dataset.type;
+        if (chk.checked) selectedTypes.add(type);
+        else selectedTypes.delete(type);
+        updateRecallTypeUI();
+      });
+    });
+
+    // Quick Action Pills
+    menuEl.querySelectorAll('.quick-pill-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userOverriddenFilters = true;
+        const action = btn.dataset.action;
+        const chks = menuEl.querySelectorAll('.recall-type-chk');
+        if (action === 'all') {
+          chks.forEach(c => { c.checked = true; selectedTypes.add(c.dataset.type); });
+        } else if (action === 'india') {
+          chks.forEach(c => {
+            const isInd = c.dataset.group === 'india';
+            c.checked = isInd;
+            if (isInd) selectedTypes.add(c.dataset.type);
+            else selectedTypes.delete(c.dataset.type);
+          });
+        } else if (action === 'world') {
+          chks.forEach(c => {
+            const isWld = c.dataset.group === 'world';
+            c.checked = isWld;
+            if (isWld) selectedTypes.add(c.dataset.type);
+            else selectedTypes.delete(c.dataset.type);
+          });
+        } else if (action === 'clear') {
+          chks.forEach(c => { c.checked = false; selectedTypes.delete(c.dataset.type); });
+        }
+        updateRecallTypeUI();
+      });
+    });
+
+    // Group header select buttons
+    menuEl.querySelectorAll('.group-select-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userOverriddenFilters = true;
+        const grp = btn.dataset.group;
+        const grpChks = menuEl.querySelectorAll(`.recall-type-chk[data-group="${grp}"]`);
+        const allChecked = Array.from(grpChks).every(c => c.checked);
+        grpChks.forEach(c => {
+          c.checked = !allChecked;
+          if (!allChecked) selectedTypes.add(c.dataset.type);
+          else selectedTypes.delete(c.dataset.type);
+        });
+        updateRecallTypeUI();
+      });
+    });
+
+    // "only" buttons per type (isolate single item alone)
+    menuEl.querySelectorAll('.item-only-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        userOverriddenFilters = true;
+        const targetType = btn.dataset.type;
+        selectedTypes.clear();
+        menuEl.querySelectorAll('.recall-type-chk').forEach(c => {
+          const isMatch = (c.dataset.type === targetType);
+          c.checked = isMatch;
+          if (isMatch) selectedTypes.add(targetType);
+        });
+        updateRecallTypeUI();
+      });
+    });
+
+    syncWithActiveKinds(true);
+  }
+
+  function syncWithActiveKinds(force = false) {
+    if (userOverriddenFilters && !force) return;
+    if (!window.WORLD_VECTOR_MAP || !window.WORLD_VECTOR_MAP.getActiveFilters) return;
+
+    const activeMapFilters = window.WORLD_VECTOR_MAP.getActiveFilters();
+    selectedTypes.clear();
+
+    const menuEl = document.getElementById('recallTypeMenu');
+    if (menuEl) {
+      menuEl.querySelectorAll('.recall-type-chk').forEach(chk => {
+        const type = chk.dataset.type;
+        const isActive = Boolean(activeMapFilters[type]);
+        chk.checked = isActive;
+        if (isActive) selectedTypes.add(type);
+      });
+    } else {
+      allCategoryKeys.forEach(k => {
+        if (activeMapFilters[k]) selectedTypes.add(k);
+      });
+    }
+
+    updateRecallTypeUI();
+  }
+
+  function updateRecallTypeUI() {
+    const labelEl = document.getElementById('recallTypeLabel');
+    const badgeEl = document.getElementById('recallTypeBadge');
+    if (!labelEl || !badgeEl) return;
+
+    if (selectedTypes.size === 0) {
+      labelEl.textContent = 'None selected';
+      badgeEl.textContent = '0';
+    } else if (selectedTypes.size === allCategoryKeys.length) {
+      labelEl.textContent = 'All Types';
+      badgeEl.textContent = 'All';
+    } else if (selectedTypes.size <= 2) {
+      const names = Array.from(selectedTypes).map(k => categoryNames[k] || k).join(', ');
+      labelEl.textContent = names;
+      badgeEl.textContent = `${selectedTypes.size}`;
+    } else {
+      labelEl.textContent = `${selectedTypes.size} types selected`;
+      badgeEl.textContent = `${selectedTypes.size}`;
+    }
+
+    updateRecallConfigSummary();
+  }
+
+  function updateRecallConfigSummary() {
+    const regEl = document.getElementById('recallSummaryRegion');
+    const typEl = document.getElementById('recallSummaryTypes');
+    const continentSelect = document.getElementById('recallContinent');
+
+    const reg = continentSelect ? continentSelect.value.trim() : '';
+    if (regEl) regEl.textContent = reg ? (reg === 'India' ? '🇮🇳 India' : reg) : '🌐 All Continents';
+    if (typEl) typEl.textContent = selectedTypes.size === allCategoryKeys.length ? 'All Types' : `${selectedTypes.size} Types`;
+  }
+
+  function toggleRecallDrawer(forceOpen = null) {
+    const drawer = document.getElementById('recallFiltersDrawer');
+    const toggleText = document.getElementById('recallToggleText');
+    const toggleBtn = document.getElementById('recallConfigToggleBtn') || document.getElementById('btnToggleRecallFilters');
+    if (!drawer) return;
+
+    const shouldCollapse = forceOpen !== null ? !forceOpen : !drawer.classList.contains('collapsed');
+    if (shouldCollapse) {
+      drawer.classList.add('collapsed');
+      if (toggleText) toggleText.textContent = 'Edit Filters';
+      if (toggleBtn) {
+        toggleBtn.classList.remove('active');
+        toggleBtn.innerHTML = '⚙ Filters';
+      }
+    } else {
+      drawer.classList.remove('collapsed');
+      if (toggleText) toggleText.textContent = 'Hide Filters';
+      if (toggleBtn) {
+        toggleBtn.classList.add('active');
+        toggleBtn.innerHTML = '✕ Close';
+      }
     }
   }
 
   function startRecall(retryDeck = null) {
     if (!window.DATA_INTEGRITY) return;
 
+    if (!userOverriddenFilters) {
+      syncWithActiveKinds(false);
+    }
+
     if (Array.isArray(retryDeck) && retryDeck.length > 0) {
       currentDeck = shuffleArray(retryDeck);
     } else {
       const continentSelect = document.getElementById('recallContinent');
-      const typeSelect = document.getElementById('recallType');
-
       const continentVal = continentSelect ? continentSelect.value.trim() : '';
-      const typeVal = typeSelect ? typeSelect.value.trim() : '';
 
       let pool = window.DATA_INTEGRITY.getAll();
 
-      if (continentVal) {
+      // Region Filter
+      if (continentVal === 'India') {
+        pool = pool.filter(e => e.group === 'india' || e.state || e.continent === 'India');
+      } else if (continentVal) {
         pool = pool.filter(e => e.continent === continentVal);
       }
-      if (typeVal) {
-        pool = pool.filter(e => e.category === typeVal);
+
+      // Grouped Multi-Type Selection Filter
+      if (selectedTypes.size > 0 && selectedTypes.size < allCategoryKeys.length) {
+        pool = pool.filter(e => {
+          const cat = e.category || e.type;
+          return selectedTypes.has(cat);
+        });
+      } else if (selectedTypes.size === 0) {
+        pool = [];
       }
 
       if (pool.length === 0) {
@@ -64,14 +288,14 @@ window.WORLD_RECALL = (function () {
           cardEl.innerHTML = `
             <div class="empty-state">
               <div class="empty-title">No Features Found</div>
-              <p class="empty-desc">No features match "${typeVal || 'All Types'}" in "${continentVal || 'All Continents'}". Please choose another combination.</p>
+              <p class="empty-desc">No features match the selected types in "${continentVal || 'All Continents'}". Please check at least one type in the filters above.</p>
             </div>
           `;
         }
+        toggleRecallDrawer(true);
         return;
       }
 
-      // Non-repetitive: full deck of matching entities
       currentDeck = shuffleArray(pool);
     }
 
@@ -79,6 +303,12 @@ window.WORLD_RECALL = (function () {
     score = 0;
     missedItems = [];
     isAnswered = false;
+
+    // Minimize controls to focus 100% on Map Recall
+    updateRecallConfigSummary();
+    const configBar = document.getElementById('recallConfigBar');
+    if (configBar) configBar.classList.remove('hidden');
+    toggleRecallDrawer(false);
 
     renderRecallCard();
   }
@@ -100,33 +330,37 @@ window.WORLD_RECALL = (function () {
       progEl.textContent = `Score: ${score}/${currentIndex} · Card ${currentIndex + 1} of ${currentDeck.length}`;
     }
 
-    // Arm both 3D Globe and 2D Flat Map in Recall mode
+    // Arm 2D Vector Map in Recall mode
     const handleAttempt = (isCorrect, clickedName) => {
       handleMapAttempt(isCorrect, clickedName);
     };
 
-    if (window.WORLD_GLOBE && window.WORLD_GLOBE.setRecallTarget) {
-      window.WORLD_GLOBE.setRecallTarget(activeEntity, handleAttempt);
-    }
-    if (window.WORLD_FLAT_MAP && window.WORLD_FLAT_MAP.setRecallTarget) {
+    if (window.WORLD_VECTOR_MAP && window.WORLD_VECTOR_MAP.setRecallTarget) {
+      window.WORLD_VECTOR_MAP.setRecallTarget(activeEntity, handleAttempt);
+    } else if (window.WORLD_FLAT_MAP && window.WORLD_FLAT_MAP.setRecallTarget) {
       window.WORLD_FLAT_MAP.setRecallTarget(activeEntity, handleAttempt);
     }
+
+    const catName = categoryNames[activeEntity.category] || (activeEntity.categoryName || activeEntity.category).toUpperCase();
+    const subLocation = activeEntity.region || activeEntity.state || activeEntity.continent || '';
 
     cardEl.innerHTML = `
       <div class="recall-prompt-card">
         <!-- Tag row -->
         <div class="detail-top-tags">
           <span class="category-pill" style="border-color:var(--accent2); color:var(--accent2);">
-            ${escapeHtml(activeEntity.category.toUpperCase())}
+            ${escapeHtml(catName)}
           </span>
-          <span class="continent-pill">
-            ${escapeHtml(activeEntity.continent)}
-          </span>
+          ${subLocation ? `
+            <span class="continent-pill">
+              ${escapeHtml(subLocation)}
+            </span>
+          ` : ''}
         </div>
 
-        <!-- Plain Simple Feature Name -->
+        <!-- Target Prompt -->
         <div class="recall-target-box">
-          <span class="target-subhead">Locate this ${escapeHtml(activeEntity.category)} on the map:</span>
+          <span class="target-subhead">Find and tap on the map:</span>
           <h1 class="recall-target-name">${escapeHtml(activeEntity.name)}</h1>
         </div>
 
@@ -136,12 +370,12 @@ window.WORLD_RECALL = (function () {
             <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
             <path d="M2 12h20"></path>
           </svg>
-          <p class="instruction-text">Rotate the globe or flat map and tap where <b>${escapeHtml(activeEntity.name)}</b> is located.</p>
+          <p class="instruction-text">Explore the map and tap where <b>${escapeHtml(activeEntity.name)}</b> is located.</p>
         </div>
 
         <!-- Reveal / Hint Button -->
         <div class="recall-action-row" id="recallActionRow">
-          <button class="secondary-btn" id="btnRevealRecall">
+          <button type="button" class="secondary-btn" id="btnRevealRecall">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"></circle>
               <line x1="22" y1="12" x2="18" y2="12"></line>
@@ -182,11 +416,10 @@ window.WORLD_RECALL = (function () {
       progEl.textContent = `Score: ${score}/${currentIndex + 1} · Card ${currentIndex + 1} of ${currentDeck.length}`;
     }
 
-    // Reveal target location on both 3D Globe and 2D Flat Map
-    if (window.WORLD_GLOBE && window.WORLD_GLOBE.revealRecallTarget) {
-      window.WORLD_GLOBE.revealRecallTarget(activeEntity);
-    }
-    if (window.WORLD_FLAT_MAP && window.WORLD_FLAT_MAP.revealRecallTarget) {
+    // Reveal target location on 2D Vector Map
+    if (window.WORLD_VECTOR_MAP && window.WORLD_VECTOR_MAP.revealRecallTarget) {
+      window.WORLD_VECTOR_MAP.revealRecallTarget(activeEntity);
+    } else if (window.WORLD_FLAT_MAP && window.WORLD_FLAT_MAP.revealRecallTarget) {
       window.WORLD_FLAT_MAP.revealRecallTarget(activeEntity);
     }
 
@@ -214,7 +447,7 @@ window.WORLD_RECALL = (function () {
         </div>
       `;
     } else {
-      const tappedLabel = clickedName ? `You tapped: ${escapeHtml(clickedName)}` : 'You clicked off-target';
+      const tappedLabel = clickedName ? `You tapped: ${escapeHtml(clickedName)}` : 'You tapped off-target';
       statusHeader = `
         <div class="feedback-badge status-wrong">
           <span>✗ ${tappedLabel}</span>
@@ -223,7 +456,6 @@ window.WORLD_RECALL = (function () {
     }
 
     const coordsStr = activeEntity.coords ? `${Math.abs(activeEntity.coords[1]).toFixed(2)}°${activeEntity.coords[1] >= 0 ? 'N' : 'S'}, ${Math.abs(activeEntity.coords[0]).toFixed(2)}°${activeEntity.coords[0] >= 0 ? 'E' : 'W'}` : '';
-
     const isLast = currentIndex === currentDeck.length - 1;
 
     resultSection.innerHTML = `
@@ -233,25 +465,53 @@ window.WORLD_RECALL = (function () {
         </div>
 
         <div class="spec-grid" style="margin-top:10px;">
-          ${activeEntity.capital ? `
+          ${activeEntity.category === 'wind' ? `
             <div class="spec-card">
-              <span class="spec-label">Capital</span>
-              <span class="spec-value">${escapeHtml(activeEntity.capital)}</span>
+              <span class="spec-label">Region</span>
+              <span class="spec-value">${escapeHtml(activeEntity.region || '')}</span>
             </div>
-          ` : ''}
-          <div class="spec-card">
-            <span class="spec-label">Coordinates</span>
-            <span class="spec-value mono">${coordsStr}</span>
-          </div>
-          <div class="spec-card">
-            <span class="spec-label">Category</span>
-            <span class="spec-value">${escapeHtml(activeEntity.category.toUpperCase())}</span>
-          </div>
+            <div class="spec-card">
+              <span class="spec-label">Nature</span>
+              <span class="spec-value" style="color:${activeEntity.type === 'cold' ? '#0284c7' : '#ef4444'}; font-weight:600;">${escapeHtml(activeEntity.nature || '')}</span>
+            </div>
+            <div class="spec-card">
+              <span class="spec-label">Primary Effect</span>
+              <span class="spec-value">${escapeHtml(activeEntity.effect || '')}</span>
+            </div>
+          ` : activeEntity.category === 'current' ? `
+            <div class="spec-card">
+              <span class="spec-label">Ocean Basin</span>
+              <span class="spec-value">${escapeHtml(activeEntity.ocean || '')}</span>
+            </div>
+            <div class="spec-card">
+              <span class="spec-label">Type</span>
+              <span class="spec-value">${escapeHtml(activeEntity.typeName || '')}</span>
+            </div>
+            <div class="spec-card">
+              <span class="spec-label">Coasts</span>
+              <span class="spec-value">${escapeHtml(activeEntity.coasts || 'Open Ocean')}</span>
+            </div>
+          ` : `
+            ${activeEntity.capital ? `
+              <div class="spec-card">
+                <span class="spec-label">Capital</span>
+                <span class="spec-value">${escapeHtml(activeEntity.capital)}</span>
+              </div>
+            ` : ''}
+            <div class="spec-card">
+              <span class="spec-label">Coordinates</span>
+              <span class="spec-value mono">${coordsStr}</span>
+            </div>
+            <div class="spec-card">
+              <span class="spec-label">Category</span>
+              <span class="spec-value">${escapeHtml((activeEntity.categoryName || activeEntity.category).toUpperCase())}</span>
+            </div>
+          `}
         </div>
 
         <!-- Description -->
         <div class="detail-box overview-box" style="margin-top:10px;">
-          <p class="overview-text">${escapeHtml(activeEntity.description || '')}</p>
+          <p class="overview-text">${escapeHtml(activeEntity.description || activeEntity.flow || '')}</p>
         </div>
 
         <!-- Key Facts -->
@@ -276,17 +536,21 @@ window.WORLD_RECALL = (function () {
 
         <!-- Advance Button -->
         <div style="margin-top:14px;">
-          <button class="primary-btn" id="btnNextRecall" style="width:100%;">
+          <button type="button" class="primary-btn" id="btnNextRecall" style="width:100%;">
             ${isLast ? 'Complete Recall Deck →' : 'Next Feature →'}
           </button>
         </div>
       </div>
     `;
 
-    resultSection.querySelector('#btnNextRecall').addEventListener('click', () => {
-      currentIndex++;
-      renderRecallCard();
-    });
+    const nextBtn = resultSection.querySelector('#btnNextRecall');
+    if (nextBtn) {
+      nextBtn.focus();
+      nextBtn.addEventListener('click', () => {
+        currentIndex++;
+        renderRecallCard();
+      });
+    }
   }
 
   function renderSummary() {
@@ -296,6 +560,10 @@ window.WORLD_RECALL = (function () {
 
     if (progEl) progEl.textContent = `Completed ${currentDeck.length} cards`;
 
+    if (window.WORLD_VECTOR_MAP && window.WORLD_VECTOR_MAP.clearRecallTarget) {
+      window.WORLD_VECTOR_MAP.clearRecallTarget();
+    }
+
     const pct = Math.round((score / currentDeck.length) * 100);
 
     cardEl.innerHTML = `
@@ -304,8 +572,9 @@ window.WORLD_RECALL = (function () {
         <div class="summary-score-big">${pct}%</div>
         <p class="summary-desc">You located ${score} out of ${currentDeck.length} features on your first attempt.</p>
         <div class="summary-actions">
-          <button class="primary-btn" id="btnRestartRecall">Practice Again</button>
-          ${missedItems.length > 0 ? `<button class="secondary-btn" id="btnRetryMissedRecall">Retry Missed (${missedItems.length})</button>` : ''}
+          <button type="button" class="primary-btn" id="btnRestartRecall">Practice Again</button>
+          ${missedItems.length > 0 ? `<button type="button" class="secondary-btn" id="btnRetryMissedRecall">Retry Missed (${missedItems.length})</button>` : ''}
+          <button type="button" class="secondary-btn" id="btnChangeRecallSettings">Change Filters</button>
         </div>
       </div>
     `;
@@ -315,6 +584,28 @@ window.WORLD_RECALL = (function () {
     if (retryBtn) {
       retryBtn.addEventListener('click', () => startRecall(missedItems));
     }
+    const changeBtn = cardEl.querySelector('#btnChangeRecallSettings');
+    if (changeBtn) {
+      changeBtn.addEventListener('click', () => toggleRecallDrawer(true));
+    }
+  }
+
+  function attachKeyboardShortcuts() {
+    if (keyboardHandlerAttached) return;
+    keyboardHandlerAttached = true;
+
+    window.addEventListener('keydown', (e) => {
+      const recallPanel = document.getElementById('recallPanel');
+      if (!recallPanel || recallPanel.classList.contains('hidden')) return;
+
+      if (isAnswered && (e.key === 'Enter' || e.key === ' ')) {
+        const nextBtn = document.getElementById('btnNextRecall');
+        if (nextBtn) {
+          e.preventDefault();
+          nextBtn.click();
+        }
+      }
+    });
   }
 
   function shuffleArray(arr) {
@@ -333,6 +624,8 @@ window.WORLD_RECALL = (function () {
 
   return {
     init: init,
-    startRecall: startRecall
+    startRecall: startRecall,
+    toggleRecallDrawer: toggleRecallDrawer,
+    syncWithActiveKinds: syncWithActiveKinds
   };
 })();

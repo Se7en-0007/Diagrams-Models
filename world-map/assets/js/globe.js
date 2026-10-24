@@ -1,11 +1,11 @@
 /**
- * World Mapping Atlas — Ultra-High Performance Fluid 3D Globe Engine
- * Engineered for solid 60 FPS:
- * 1. Pixel ratio capped to max 1.5 (prevents GPU 4K fill-rate throttle).
- * 2. Front-hemisphere spherical curvature culling (discards back-facing labels).
- * 3. Removed polygon raycasting on pointer-move (eliminates 10,650-vertex CPU traversals).
- * 4. Zero morphing/tween duration (instant updates).
- * 5. RAF-throttled camera LOD updates (pure 60 FPS during drag rotation).
+ * World Mapping Atlas — Ultra-High Performance Fluid 3D Cartographic Globe Engine
+ * Engineered for solid 60 FPS & Crystal-Clear Cartographic Study:
+ * 1. Dynamic country extrusion & glowing highlighting on click / selection.
+ * 2. Spherical grid-based spatial decluttering (No overlapping label blobs, balanced across all continents).
+ * 3. Official Survey of India boundary integration (including POK and Aksai Chin).
+ * 4. High-contrast typography with elevated label altitude (zero Z-fighting with terrain).
+ * 5. Elevated animated beacon rings & paths floating cleanly above polygon caps.
  */
 
 window.WORLD_GLOBE = (function () {
@@ -35,7 +35,7 @@ window.WORLD_GLOBE = (function () {
   let allPaths = [];
   let _updateTimer = null;
 
-  function scheduleUpdate(delay = 100) {
+  function scheduleUpdate(delay = 60) {
     clearTimeout(_updateTimer);
     _updateTimer = setTimeout(() => {
       requestAnimationFrame(_applyLayers);
@@ -52,22 +52,22 @@ window.WORLD_GLOBE = (function () {
         .globeImageUrl('world-map/assets/img/earth-blue-marble.jpg')
         .backgroundColor('#060e18')
         .showAtmosphere(true)
-        .atmosphereColor('#2563eb')
-        .atmosphereAltitude(0.12)
+        .atmosphereColor('#1d4ed8')
+        .atmosphereAltitude(0.11)
 
-        // Instant transitions — removes 1000ms CPU tween loops
+        // Instant transitions — prevents heavy 1000ms CPU tween loops
         .polygonsTransitionDuration(0)
         .labelsTransitionDuration(0)
 
-        // ── Labels ──
+        // ── High-Contrast Cartographic Labels ──
         .labelLat(d => d.lat)
         .labelLng(d => d.lng)
         .labelText(d => d.text)
-        .labelSize(d => d.size)
-        .labelDotRadius(d => d.dotRadius)
-        .labelColor(d => d.color)
-        .labelAltitude(0.008)
-        .labelResolution(1.4)
+        .labelSize(d => d.id === selectedEntityId ? 1.35 : (d.size || 0.85))
+        .labelDotRadius(d => d.id === selectedEntityId ? 0.42 : (d.dotRadius || 0.20))
+        .labelColor(d => d.id === selectedEntityId ? '#38bdf8' : (d.color || '#ffffff'))
+        .labelAltitude(0.015) // Elevated cleanly above polygon caps
+        .labelResolution(1.6)
         .onLabelClick(d => {
           const mode = window.WORLD_NAV ? window.WORLD_NAV.getMode() : 'browse';
           if (mode === 'recall') {
@@ -80,32 +80,35 @@ window.WORLD_GLOBE = (function () {
           }
         })
 
-        // ── Paths: rivers & mountains (Solid lines, zero animation lag) ──
+        // ── Paths: rivers & mountain crests (Elevated to 0.007 to avoid Z-fighting) ──
         .pathPoints(d => d.coords)
         .pathPointLat(p => p[1])
         .pathPointLng(p => p[0])
-        .pathPointAlt(0.006)
-        .pathColor(d => d.color)
-        .pathStroke(d => d.stroke || 0.8)
+        .pathPointAlt(0.007)
+        .pathColor(d => d.id === selectedEntityId ? '#38bdf8' : d.color)
+        .pathStroke(d => d.id === selectedEntityId ? 2.0 : (d.stroke || 0.9))
         .pathDashLength(1.0)
         .pathDashGap(0)
         .pathDashAnimateTime(0)
 
-        // ── Selection Rings (only rendered on selection) ──
+        // ── Selection Beacon Rings (Elevated to 0.018 to float above all features) ──
         .ringLat(d => d.lat)
         .ringLng(d => d.lng)
+        .ringAltitude(0.018)
         .ringColor(() => '#38bdf8')
-        .ringMaxRadius(3.2)
-        .ringPropagationSpeed(1.4)
-        .ringRepeatPeriod(850)
+        .ringMaxRadius(3.5)
+        .ringPropagationSpeed(1.6)
+        .ringRepeatPeriod(750)
 
-        // ── Globe Surface Click (for Recall spatial tap) ──
+        // ── Globe Surface Click (Browse & Recall) ──
         .onGlobeClick(({ lat, lng }) => {
           const mode = window.WORLD_NAV ? window.WORLD_NAV.getMode() : 'browse';
-          if (mode === 'recall') handleRecallAttempt(lat, lng, null);
+          if (mode === 'recall') {
+            handleRecallAttempt(lat, lng, null);
+          }
         });
 
-      // Cap device pixel ratio to max 1.5 to double GPU rendering speed on high-DPI displays
+      // Cap device pixel ratio to max 1.5 for ultra-smooth 60 FPS
       if (globe.renderer) {
         try {
           const r = globe.renderer();
@@ -115,16 +118,15 @@ window.WORLD_GLOBE = (function () {
         } catch (e) {}
       }
 
-      // OrbitControls tuning — only refresh labels after camera drag completes
+      // Smooth OrbitControls tuning
       try {
         if (globe.controls) {
           const ctrl = globe.controls();
           if (ctrl) {
             ctrl.rotateSpeed = 0.85;
             ctrl.zoomSpeed = 1.1;
-            if (ctrl.addEventListener) {
-              ctrl.addEventListener('end', () => scheduleUpdate(80));
-            }
+            ctrl.addEventListener('change', () => scheduleUpdate(120));
+            ctrl.addEventListener('end', () => scheduleUpdate(40));
           }
         }
       } catch (err) {
@@ -146,7 +148,7 @@ window.WORLD_GLOBE = (function () {
     }
   }
 
-  // ── Throttled Responsive Resize ──
+  // ── Responsive Resize ──
   let _resizeTimer = null;
   function setupResize() {
     function handleResize() {
@@ -165,27 +167,27 @@ window.WORLD_GLOBE = (function () {
     setTimeout(handleResize, 100);
   }
 
-  // ── Build label dataset with prominence ranking ──
+  // ── Build label dataset with clear contrast colors & prominence hierarchy ──
   function buildLabelsData() {
     if (!window.WORLD_MAP_DATA || !Array.isArray(window.WORLD_MAP_DATA.entities)) return;
 
     const majorCapitals = new Set([
       'Washington, D.C.', 'London', 'Paris', 'Berlin', 'Tokyo', 'Beijing',
-      'New Delhi', 'Canberra', 'Brasilia', 'Cairo', 'Pretoria / Cape Town / Bloemfontein',
-      'Ottawa', 'Rome', 'Madrid', 'Moscow', 'Buenos Aires', 'Riyadh'
+      'New Delhi', 'Canberra', 'Brasília', 'Cairo', 'Pretoria / Cape Town / Bloemfontein',
+      'Ottawa', 'Rome', 'Madrid', 'Moscow', 'Buenos Aires', 'Riyadh', 'Jakarta', 'Nairobi'
     ]);
 
     allLabels = window.WORLD_MAP_DATA.entities.map(e => {
       const colorMap = {
-        country:   '#fef08a',
-        mountain:  '#e9d5ff',
-        river:     '#38bdf8',
-        lake:      '#67e8f9',
-        strait:    '#5eead4',
-        sea:       '#67e8f9',
-        desert:    '#fcd34d',
-        grassland: '#86efac',
-        island:    '#fdba74'
+        country:   '#ffffff', // Crisp bright white with dark drop-shadow contrast
+        mountain:  '#d8b4fe', // High-contrast purple
+        river:     '#38bdf8', // Vibrant cyan
+        lake:      '#38bdf8', // Vibrant cyan
+        strait:    '#2dd4bf', // Bright teal
+        sea:       '#38bdf8', // Bright cyan
+        desert:    '#fbbf24', // Vivid amber
+        grassland: '#4ade80', // Emerald green
+        island:    '#fb923c'  // Vivid orange
       };
 
       let isProminent = false;
@@ -202,8 +204,8 @@ window.WORLD_GLOBE = (function () {
         continent: e.continent,
         lat: e.coords[1],
         lng: e.coords[0],
-        color: colorMap[e.category] || '#f8fafc',
-        size: e.category === 'country' ? 0.90 : 0.80,
+        color: colorMap[e.category] || '#ffffff',
+        size: e.category === 'country' ? 0.95 : 0.80,
         dotRadius: e.category === 'country' ? 0.22 : 0.18,
         isProminent: isProminent
       };
@@ -221,7 +223,7 @@ window.WORLD_GLOBE = (function () {
       if (r.path && r.path.length > 1) {
         paths.push({
           id: r.id, name: r.name, type: 'river',
-          color: 'rgba(56,189,248,0.85)', stroke: 0.8, coords: r.path
+          color: 'rgba(56,189,248,0.85)', stroke: 0.9, coords: r.path
         });
       }
     });
@@ -239,7 +241,7 @@ window.WORLD_GLOBE = (function () {
     scheduleUpdate(50);
   }
 
-  // ── Country Boundary Polygons (Zero raycasting overhead) ──
+  // ── Country Boundary Polygons (with Survey of India sovereign borders) ──
   function loadCountryBoundaries() {
     fetch('world-map/data/countries.geojson')
       .then(r => { if (!r.ok) throw new Error('miss'); return r.json(); })
@@ -252,17 +254,36 @@ window.WORLD_GLOBE = (function () {
       });
   }
 
+  function isMatchName(n1, n2) {
+    if (!n1 || !n2) return false;
+    const a = n1.toLowerCase().trim();
+    const b = n2.toLowerCase().trim();
+    return a === b || a.includes(b) || b.includes(a);
+  }
+
   function applyPolygons(features) {
     if (!globe || !features || polygonsLoaded) return;
     polygonsLoaded = true;
 
     globe
       .polygonsData(activeLayers.political ? features : [])
-      .polygonAltitude(0.001) // Flat to surface — ZERO 3D extrusion geometry
-      .polygonSideColor(() => 'transparent')
-      .polygonStrokeColor(() => 'rgba(255,255,255,0.25)')
-      .polygonCapColor(() => 'rgba(15,35,60,0.18)')
-      // NOTE: Intentionally NO polygonLabel to avoid raycasting 10,650 vertices on pointermove!
+      // Default altitude 0.003 cleanly eliminates Z-fighting with sphere surface
+      .polygonAltitude(d => {
+        const name = d.properties.ADMIN || d.properties.NAME;
+        return (selectedCountryName && isMatchName(name, selectedCountryName)) ? 0.014 : 0.003;
+      })
+      .polygonSideColor(d => {
+        const name = d.properties.ADMIN || d.properties.NAME;
+        return (selectedCountryName && isMatchName(name, selectedCountryName)) ? 'rgba(56, 189, 248, 0.45)' : 'transparent';
+      })
+      .polygonStrokeColor(d => {
+        const name = d.properties.ADMIN || d.properties.NAME;
+        return (selectedCountryName && isMatchName(name, selectedCountryName)) ? '#38bdf8' : 'rgba(255, 255, 255, 0.35)';
+      })
+      .polygonCapColor(d => {
+        const name = d.properties.ADMIN || d.properties.NAME;
+        return (selectedCountryName && isMatchName(name, selectedCountryName)) ? 'rgba(14, 165, 233, 0.48)' : 'rgba(15, 30, 55, 0.22)';
+      })
       .onPolygonClick(poly => {
         const name = poly.properties.ADMIN || poly.properties.NAME;
         const mode = window.WORLD_NAV ? window.WORLD_NAV.getMode() : 'browse';
@@ -272,60 +293,115 @@ window.WORLD_GLOBE = (function () {
         selectedCountryName = name;
         if (window.WORLD_MAP_DATA) {
           const match = window.WORLD_MAP_DATA.entities.find(e =>
-            e.category === 'country' && (
-              e.name.toLowerCase() === name.toLowerCase() ||
-              name.toLowerCase().includes(e.name.toLowerCase()) ||
-              e.name.toLowerCase().includes(name.toLowerCase())
-            )
+            e.category === 'country' && isMatchName(e.name, name)
           );
-          if (match && window.WORLD_APP && window.WORLD_APP.onEntitySelected) {
-            window.WORLD_APP.onEntitySelected(match.id);
+          if (match) {
+            selectEntity(match.id, false);
+            if (window.WORLD_APP && window.WORLD_APP.onEntitySelected) {
+              window.WORLD_APP.onEntitySelected(match.id);
+            }
           }
         }
       });
   }
 
-  // ── Spherical Front-Hemisphere LOD Label Filtering ──
+  function updatePolygonStyles() {
+    if (!globe || !countriesGeojson || !polygonsLoaded) return;
+    globe
+      .polygonAltitude(d => {
+        const name = d.properties.ADMIN || d.properties.NAME;
+        return (selectedCountryName && isMatchName(name, selectedCountryName)) ? 0.014 : 0.003;
+      })
+      .polygonCapColor(d => {
+        const name = d.properties.ADMIN || d.properties.NAME;
+        return (selectedCountryName && isMatchName(name, selectedCountryName)) ? 'rgba(14, 165, 233, 0.48)' : 'rgba(15, 30, 55, 0.22)';
+      })
+      .polygonStrokeColor(d => {
+        const name = d.properties.ADMIN || d.properties.NAME;
+        return (selectedCountryName && isMatchName(name, selectedCountryName)) ? '#38bdf8' : 'rgba(255, 255, 255, 0.35)';
+      })
+      .polygonSideColor(d => {
+        const name = d.properties.ADMIN || d.properties.NAME;
+        return (selectedCountryName && isMatchName(name, selectedCountryName)) ? 'rgba(56, 189, 248, 0.45)' : 'transparent';
+      });
+  }
+
+  // ── Spherical Spatial Grid Decluttering (Balanced Globally, Zero Cluster Blobs) ──
   function _applyLayers() {
     if (!globe) return;
 
     const pov = globe.pointOfView ? globe.pointOfView() : { lat: 15, lng: 20, altitude: 2.3 };
-    const camLatRad = (pov.lat || 0) * (Math.PI / 180);
-    const camLng = pov.lng || 0;
+    const camLat = pov.lat || 15;
+    const camLng = pov.lng || 20;
+    const camLatRad = camLat * (Math.PI / 180);
     const altitude = pov.altitude || 2.3;
 
-    // Filter labels: curvature culling + layer checks
-    const filteredLabels = allLabels.filter(l => {
-      if (hiddenQuizEntityId && l.id === hiddenQuizEntityId) return false;
-      if (!activeLayers.labels) return false;
-      if (activeRecallTarget) return false; // all hidden in recall
+    if (activeRecallTarget || !activeLayers.labels) {
+      globe.labelsData([]);
+    } else {
+      const candidates = [];
+      let selectedLabel = null;
 
-      if (l.category === 'country' && !activeLayers.political) return false;
-      if ((l.category === 'mountain' || l.category === 'desert' || l.category === 'grassland') && !activeLayers.physical) return false;
-      if ((l.category === 'river' || l.category === 'lake' || l.category === 'strait' || l.category === 'sea') && !activeLayers.water) return false;
+      for (let i = 0; i < allLabels.length; i++) {
+        const l = allLabels[i];
+        if (hiddenQuizEntityId && l.id === hiddenQuizEntityId) continue;
 
-      // Always show selected entity label
-      if (l.id === selectedEntityId) return true;
+        if (l.category === 'country' && !activeLayers.political) continue;
+        if ((l.category === 'mountain' || l.category === 'desert' || l.category === 'grassland') && !activeLayers.physical) continue;
+        if ((l.category === 'river' || l.category === 'lake' || l.category === 'strait' || l.category === 'sea') && !activeLayers.water) continue;
 
-      // Spherical dot product to cull back-facing labels behind the Earth's curvature
-      const lLatRad = l.lat * (Math.PI / 180);
-      const dLngRad = (l.lng - camLng) * (Math.PI / 180);
-      const cosAngle = Math.sin(camLatRad) * Math.sin(lLatRad) + Math.cos(camLatRad) * Math.cos(lLatRad) * Math.cos(dLngRad);
+        // Guaranteed visibility for selected entity
+        if (l.id === selectedEntityId) {
+          selectedLabel = Object.assign({}, l, {
+            size: 1.35,
+            color: '#38bdf8',
+            dotRadius: 0.42
+          });
+          continue;
+        }
 
-      // Facing away from camera (> 75 degrees from center) -> drop
-      if (cosAngle < 0.22) return false;
+        // Spherical cosine dot product to cull behind-the-horizon points
+        const lLatRad = l.lat * (Math.PI / 180);
+        const dLngRad = (l.lng - camLng) * (Math.PI / 180);
+        const cosAngle = Math.sin(camLatRad) * Math.sin(lLatRad) + Math.cos(camLatRad) * Math.cos(lLatRad) * Math.cos(dLngRad);
 
-      // Altitude-based LOD
-      if (altitude > 1.6) {
-        return l.isProminent;
-      } else if (altitude > 1.0) {
-        return l.isProminent || cosAngle > 0.55;
+        // Discard behind horizon (> 78 degrees from center of view)
+        if (cosAngle < 0.20) continue;
+
+        candidates.push({
+          label: l,
+          cosAngle: cosAngle,
+          weight: (l.isProminent ? 80 : 20) + cosAngle * 40
+        });
       }
-      return true;
-    });
 
-    // Cap to max 45 labels simultaneously for silky smooth 60 FPS
-    globe.labelsData(filteredLabels.slice(0, 45));
+      // Sort by prominence & distance from view center
+      candidates.sort((a, b) => b.weight - a.weight);
+
+      // Spatial Grid Decluttering: dynamically adjusts cell size based on camera altitude
+      const cellSize = altitude > 1.8 ? 16 : (altitude > 1.2 ? 10 : 5);
+      const maxPerCell = altitude > 1.8 ? 1 : 2;
+      const cellCounts = {};
+      const chosen = [];
+
+      if (selectedLabel) chosen.push(selectedLabel);
+
+      for (let i = 0; i < candidates.length; i++) {
+        const item = candidates[i].label;
+        const cellX = Math.floor((item.lng + 180) / cellSize);
+        const cellY = Math.floor((item.lat + 90) / cellSize);
+        const cellKey = cellX + '_' + cellY;
+
+        const currentCount = cellCounts[cellKey] || 0;
+        if (currentCount < maxPerCell) {
+          cellCounts[cellKey] = currentCount + 1;
+          chosen.push(item);
+          if (chosen.length >= 65) break; // generous, balanced quota
+        }
+      }
+
+      globe.labelsData(chosen);
+    }
 
     // Paths
     const filteredPaths = allPaths.filter(p => {
@@ -335,13 +411,14 @@ window.WORLD_GLOBE = (function () {
     });
     globe.pathsData(filteredPaths);
 
-    // Polygons layer toggle
+    // Polygons layer toggle & update styles
     if (countriesGeojson && polygonsLoaded) {
       globe.polygonsData(activeLayers.political ? countriesGeojson.features : []);
+      updatePolygonStyles();
     }
   }
 
-  function updateVisibleLayers() { scheduleUpdate(50); }
+  function updateVisibleLayers() { scheduleUpdate(40); }
 
   function flyTo(lon, lat, altitude = 0.88) {
     if (!globe) return;
@@ -355,7 +432,8 @@ window.WORLD_GLOBE = (function () {
       if (globe) {
         globe.ringsData([]);
       }
-      scheduleUpdate(50);
+      updatePolygonStyles();
+      scheduleUpdate(40);
       return;
     }
 
@@ -373,13 +451,14 @@ window.WORLD_GLOBE = (function () {
       globe.ringsData([{ lat, lng: lon }]);
     }
 
+    updatePolygonStyles();
     if (shouldFly) flyTo(lon, lat, altitude);
-    scheduleUpdate(50);
+    scheduleUpdate(40);
   }
 
   function setQuizTarget(targetEntityId) {
     hiddenQuizEntityId = targetEntityId;
-    scheduleUpdate(50);
+    scheduleUpdate(40);
 
     if (targetEntityId && window.DATA_INTEGRITY) {
       const entity = window.DATA_INTEGRITY.getEntity(targetEntityId);
@@ -395,7 +474,7 @@ window.WORLD_GLOBE = (function () {
 
   function revealQuizAnswer(targetEntityId) {
     hiddenQuizEntityId = null;
-    scheduleUpdate(50);
+    scheduleUpdate(40);
     if (targetEntityId) selectEntity(targetEntityId, false, 0.88);
   }
 
@@ -403,7 +482,7 @@ window.WORLD_GLOBE = (function () {
     activeRecallTarget = targetEntity;
     recallCallback = callback;
     activeLayers.labels = false;
-    scheduleUpdate(50);
+    scheduleUpdate(40);
     if (globe) globe.ringsData([]);
   }
 
@@ -429,7 +508,7 @@ window.WORLD_GLOBE = (function () {
 
   function revealRecallTarget(targetEntity) {
     activeLayers.labels = true;
-    scheduleUpdate(50);
+    scheduleUpdate(40);
     if (targetEntity && targetEntity.coords) {
       selectEntity(targetEntity.id, true, 0.88);
     }
@@ -439,12 +518,12 @@ window.WORLD_GLOBE = (function () {
     activeRecallTarget = null;
     recallCallback = null;
     activeLayers.labels = true;
-    scheduleUpdate(50);
+    scheduleUpdate(40);
   }
 
   function setLayerVisibility(layer, visible) {
     activeLayers[layer] = visible;
-    scheduleUpdate(50);
+    scheduleUpdate(40);
   }
 
   function zoomIn() {
@@ -466,7 +545,8 @@ window.WORLD_GLOBE = (function () {
     hiddenQuizEntityId = null;
     activeRecallTarget = null;
     activeLayers.labels = true;
-    scheduleUpdate(50);
+    updatePolygonStyles();
+    scheduleUpdate(40);
     globe.ringsData([]);
     globe.pointOfView({ lat: 15, lng: 20, altitude: 2.3 }, 900);
   }

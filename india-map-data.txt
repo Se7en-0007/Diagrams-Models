@@ -1,0 +1,294 @@
+## Parks, reserves & wetlands — full list
+
+Plain-text, state-by-state reference behind the interactive protected-areas map.
+
+[Interactive Map: Protected Areas & WetlandsActive-recall map of India's national parks & tiger reserves, with wetland, river and terrain layers and a Learn ⇄ Recall toggle.](https://www.upsclabs.com/gs3/national-parks)
+
+## By state
+
+Open a state for its national parks, tiger reserves and wetland count, with key species and notes for each.
+
+Andaman and Nicobar Islands (8 parks/reserves)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Mahatma Gandhi Marine (Wandoor) | National Park | Marine (South Andaman) | Dugong, Green Sea Turtle, Saltwater Crocodile | Coral marine park off Wandoor, South Andaman. |
+| Rani Jhansi Marine | National Park | Marine (Ritchie's Archipelago) | Dugong, Hawksbill Turtle, Coral | Ritchie's Archipelago; coral & marine biodiversity. |
+| Saddle Peak | National Park | North Andaman | Andaman Wild Pig, Saltwater Crocodile, Nicobar Pigeon | Highest point of the Andaman & Nicobar Islands. |
+| Campbell Bay | National Park | Great Nicobar | Nicobar Megapode, Saltwater Crocodile, Nicobar Long-tailed Macaque | Great Nicobar Biosphere Reserve; southernmost India. |
+| Galathea | National Park | Great Nicobar | Leatherback Turtle, Nicobar Megapode, Saltwater Crocodile | Great Nicobar; leatherback sea-turtle nesting beach. |
+| North Button Island | National Park | — |  | Tiny uninhabited island national park adjoining Rani Jhansi Marine NP; coral reef ecosystem. |
+| Middle Button Island | National Park | — |  | Tiny uninhabited island national park adjoining Rani Jhansi Marine NP; coral reef ecosystem. |
+| South Button Island | National Park | — |  | India's smallest national park (~5 sq km); coral reef ecosystem near Havelock Island. |
+
+Andhra Pradesh (4 parks/reserves, 1 wetland)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Sri Venkateswara (Tirumala) | National Park | Swarnamukhi | Grey Slender Loris, Indian Pangolin, White Backed Vulture, Indian Leopard, Yellow Throated Bulbul | Seshachalam Biosphere Reserve; endemic Red Sanders; near Tirupati. |
+| Papikonda | National Park | Godavari | Indian Leopard, Gaur, Indian Pangolin, Birds: Oriental Darter (NT), Black Bellied Tern (EN), Pallid Harrier (NT), Pale Capped Pigeon (VU), Jerdon's Nightjar, Great Stone Curlew | Eastern Ghats along the Godavari gorge ('Papi hills'). |
+| Rajiv Gandhi (Kadapa) | National Park | Penner (nearby) | Indian Leopard, Sloth Bear, Blackbuck | Small national park in the Kadapa region. |
+| Nagarjunsagar-Srisailam | Tiger Reserve | — | Bengal Tiger, Indian Leopard | India's largest tiger reserve; Krishna river & Srisailam dam; Nallamala forest. |
+
+Arunachal Pradesh (4 parks/reserves)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Namdapha | National Park + Tiger Reserve | Noa-Dihing | Namdapha Flying Squirrel, Clouded Leopard, Hoolock Gibbon | Only Indian park with four big cats (tiger, leopard, clouded & snow leopard); endemic Namdapha flying squirrel. |
+| Mouling | National Park | Siang | Takin, Red Panda, Hoolock Gibbon | Part of the Dihang-Dibang Biosphere Reserve; takin & red panda. |
+| Pakke | Tiger Reserve | — | Bengal Tiger, Great Hornbill | Tiger Reserve; hornbill conservation flagship; the 'Pakke Declaration' on climate & communities. |
+| Kamlang | Tiger Reserve | — | Bengal Tiger, Clouded Leopard | Tiger Reserve; four-big-cat landscape adjoining Namdapha. |
+
+Assam (7 parks/reserves, 1 wetland)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Kaziranga | National Park + Tiger Reserve | Brahmaputra (Diphlu) | Indian Rhinoceros, Bengal Tiger, Wild Water Buffalo, Barasingha Swamp Deer | UNESCO WHS; two-thirds of the world's one-horned rhinos; Tiger Reserve. |
+| Manas | National Park + Tiger Reserve | Manas | Pygmy Hog, Golden Langur, Bengal Tiger, Great Hornbill, Bengal Florican (largest population), Assam Roofed Turtle, Hispid Hare | WHS & Biosphere Reserve; contiguous with Royal Manas (Bhutan); pygmy hog & golden langur. Among the first 9 Tiger Reserves declared under Project Tiger (1973). |
+| Nameri | National Park + Tiger Reserve | Jia Bharali (Kameng) | White-winged Wood Duck, Bengal Tiger, Asian Elephant | Nameri Tiger Reserve; white-winged wood duck habitat. |
+| Orang | National Park + Tiger Reserve | Brahmaputra (Pachnol, Belsiri & Dhansiri) | Indian Rhinoceros, Bengal Tiger, Pygmy Hog | Orang Tiger Reserve; rhino & tiger on the north bank of the Brahmaputra. |
+| Dibru-Saikhowa | National Park | Brahmaputra · Lohit · Dibru | Gangetic Dolphin, White-winged Wood Duck, Feral Horse, Sloth Bear, Indian leopard & Clouded Leopard | Biosphere Reserve; feral horses; river-island ecosystem. |
+| Raimona | National Park | Sankosh · Saralbhanga · Pekua | Golden Langur, Asian Elephant, Clouded Leopard | Notified 2021; golden langur habitat; contiguous with Bhutan & Buxa (WB). |
+| Dehing Patkai | National Park | Dehing (Burhi Dihing) | Hoolock Gibbon, Clouded Leopard, White-winged Wood Duck (highest concentration) | Notified 2021; India's largest lowland rainforest stretch. |
+
+Bihar (1 park/reserve, 6 wetlands)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Valmiki | National Park + Tiger Reserve | Gandak (Narayani) · Burhi Gandak · Harsha Masan · Pandai | Bengal Tiger, Asian Elephant, One Horned Rhino, Gaur | Bihar's only Tiger Reserve; Indo-Nepal border, contiguous with Chitwan (Nepal). |
+
+Chhattisgarh (5 parks/reserves, 1 wetland)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Indravati Kutru | National Park + Tiger Reserve | Indravati | Bengal Tiger, Wild Water Buffalo, Barasingha, Chaursingha (Four-horned Antelope) | Chhattisgarh's flagship Tiger Reserve; last refuge of wild buffalo & barasingha. |
+| Kanger Valley (Ghati) | National Park | Kanger · Kholaba | Bastar Hill Myna, Indian Leopard, Mouse Deer | Kutumsar limestone caves; Bastar Hill Myna (state bird). |
+| Guru Ghasidas (Sanjay/Tamor Pingla) | National Park + Tiger Reserve | Gopad · Banas · Rihand | Bengal Tiger, Indian Leopard, Sloth Bear | Formerly Sanjay NP; core of the new Guru Ghasidas–Tamor Pingla Tiger Reserve (2024). |
+| Udanti-Sitanadi | Tiger Reserve | — | Bengal Tiger, Wild Water Buffalo | Tiger Reserve; among the last homes of the wild buffalo (state animal). |
+| Achanakmar | Tiger Reserve | — | Bengal Tiger, Gaur | Tiger Reserve within the Achanakmar-Amarkantak Biosphere Reserve. |
+
+Goa (1 park/reserve, 1 wetland)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Mollem (Bhagwan Mahaveer) | National Park | Mhadei · Dudhsagar | Bengal Tiger, Indian Giant Squirrel, King Cobra | Western Ghats; Dudhsagar Falls; part of the Mhadei tiger landscape. |
+
+Gujarat (4 parks/reserves, 5 wetlands)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Gir | National Park | Hiran · Shetrunji · Sarkala · Kamleshwar Dam | Asiatic Lion, Indian Leopard, Chital | Only wild population of the Asiatic Lion; Maldhari pastoralists. |
+| Blackbuck (Velavadar) | National Park | Bhal coastal plain | Lesser Florican, Blackbuck, Indian Wolf, Macqueen's Bustard | Velavadar grasslands; harrier roost; lesser florican & wolf. |
+| Vansda | National Park | Ambika | Indian Pangolin, Indian Giant Squirrel, Indian Leopard | Dense forest of southern Gujarat; rich birdlife. |
+| Marine (Gulf of Kutch) | National Park | Gulf of Kutch (marine) | Dugong, Green Sea Turtle, Whale Shark | India's first Marine National Park (1982); 42 islands (including Pirotan Island) |
+
+Haryana (2 parks/reserves, 2 wetlands)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Sultanpur | National Park | Najafgarh drainage | Sarus Crane, Painted Stork, Greater Flamingo | Ramsar site; key migratory-bird stopover on the Central Asian Flyway. |
+| Kalesar | National Park | Yamuna (nearby) | Asian Elephant, Indian Leopard, Sambar, Siberian Crane | Shivalik foothills; elephants & leopards; adjoins Rajaji (Uttarakhand). |
+
+Himachal Pradesh (5 parks/reserves, 3 wetlands)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Great Himalayan | National Park | Tirthan (Beas) · Sainj · Jiwa | Western Tragopan, Snow Leopard, Himalayan Musk Deer, Himalayan Brown Bear, Himalayan Tahr | UNESCO World Heritage Site; Near Kullu |
+| Pin Valley | National Park | Pin | Snow Leopard, Siberian Ibex, Blue Sheep | Trans-Himalayan cold desert; prime snow leopard & ibex habitat. |
+| Khirganga | National Park | Parvati | Himalayan Black Bear, Himalayan Musk Deer, Himalayan Monal | Parvati valley; part of the greater Kullu conservation landscape. |
+| Inderkilla | National Park | Beas tributaries | Himalayan Tahr, Himalayan Monal, Himalayan Musk Deer | Small high-altitude park in Kullu. |
+| Simbalbara | National Park | Shivalik streams | Indian Leopard, Sambar Stag, Goral | Shivalik foothills (Paonta Valley); contiguous with Kalesar (Haryana) & Rajaji (Uttarakhand). |
+
+Jammu and Kashmir (4 parks/reserves, 6 wetlands)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Dachigam | National Park | Dagwan | Hangul (Kashmir Stag), Himalayan Black Bear, Himalayan Musk Deer, Himalayan Monal | Near Marsar Lake |
+| Kishtwar | National Park | Chenab · Marwah | Snow Leopard, Markhor, Himalayan Musk Deer | High-altitude park; snow leopard & markhor habitat. |
+| Kazinag | National Park | Jhelum tributaries | Markhor, Himalayan Brown Bear, Himalayan Musk Deer | Key markhor conservation area near the LoC. |
+| Salim Ali (City Forest) | National Park | Jhelum | Hangul (Kashmir Stag), Indian Leopard, Himalayan Serow, Himalayan Snowcock | Near Dal Lake. |
+
+Jharkhand (1 park/reserve, 1 wetland)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Betla | National Park + Tiger Reserve | North Koel · Auranga | Bengal Tiger, Asian Elephant, Gaur | Core of Palamau Tiger Reserve — one of the first nine Project Tiger reserves (1973-74); first pugmark tiger census. |
+
+Karnataka (7 parks/reserves, 4 wetlands)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Bandipur | National Park + Tiger Reserve | Kabini · Moyar | Bengal Tiger, Asian Elephant, Indian Leopard, Gaur, Sloth Bear | Part of the Nilgiri Biosphere Reserve; among the first Project Tiger reserves. |
+| Nagarhole | National Park + Tiger Reserve | Kabini · Lakshmana Tirtha | Bengal Tiger, Asian Elephant, Dhole | Rajiv Gandhi NP; Nilgiri Biosphere Reserve; high tiger & elephant density; Brahmagiri Hills |
+| Bannerghatta | National Park | Suvarnamukhi stream | Asian Elephant, Sloth Bear, Indian Leopard | Biological park & elephant corridor on Bengaluru's edge. |
+| Kudremukh | National Park | Tunga · Bhadra · Nethravathi (sources) | Lion-tailed Macaque, Indian Giant Squirrel, Indian Leopard | Western Ghats; source of the Tunga, Bhadra & Nethravathi rivers. |
+| Anshi | National Park + Tiger Reserve | Kali | Bengal Tiger, King Cobra, Indian Leopard | Core of Kali (Dandeli–Anshi) Tiger Reserve; black-panther sightings. |
+| Bhadra | Tiger Reserve | — | Bengal Tiger, Asian Elephant | Tiger Reserve; site of India's first fully voluntary village relocation. |
+| BRT (Biligiri Ranganatha) | Tiger Reserve | — | Bengal Tiger, Asian Elephant | Tiger Reserve bridging the Western & Eastern Ghats. |
+
+Kerala (7 parks/reserves, 3 wetlands)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Eravikulam | National Park | (Lakkam Waterfalls) | Nilgiri Tahr, Asian Elephant, Indian Leopard | Nilgiri Tahr stronghold; Neelakurinji blooms every 12 years. |
+| Silent Valley | National Park | Kunthipuzha | Lion-tailed Macaque, Nilgiri Langur, Indian Giant Squirrel, Black Footed Gray Langur, Indian Pangolin (vs. Chinese CR) | Saved by the Silent Valley movement (1980s); undisturbed rainforest. |
+| Periyar | National Park + Tiger Reserve | Periyar · Pamba | Bengal Tiger, Asian Elephant, Salim Ali Fruit Bat, Nilgiri Tahr | Cardamom & Pandalam Hills; Thekkady. |
+| Mathikettan Shola | National Park | High-range streams | Asian Elephant, Gaur, Indian Leopard | Shola park & elephant corridor in the High Range. |
+| Anamudi Shola | National Park | High-range streams | Nilgiri Tahr, Asian Elephant, Nilgiri Marten | Largest contiguous shola stretch in the High Range. |
+| Pampadum Shola | National Park | High-range streams | Nilgiri Marten, Golden Jackal, Asian Small Clawed Otter, Nilgiri Langur | Kerala's smallest national park; shola-grassland mosaic. |
+| Parambikulam | Tiger Reserve | — | Bengal Tiger, Asian Elephant, Lion-tailed Macaque | Tiger Reserve; Kannimara teak (one of the world's oldest); tribal heritage. |
+
+Ladakh (1 park/reserve, 2 wetlands)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Hemis | National Park | Markha · Rumbak (Indus) | Snow Leopard, Blue Sheep, Ladakh Urial | India's largest national park; the 'snow leopard capital'. |
+
+Madhya Pradesh (12 parks/reserves, 5 wetlands)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Kanha | National Park + Tiger Reserve | Banjar · Halon | Barasingha, Bengal Tiger, Gaur | Jungle Book inspiration; among first 9 Project Tiger reserves. |
+| Bandhavgarh | National Park + Tiger Reserve | Charanganga | Bengal Tiger, Sloth Bear, Indian Leopard | Among the highest tiger densities in India. |
+| Pench | National Park + Tiger Reserve | Pench | Dhole, Bengal Tiger, Indian Leopard | AKA Indira Priyadarshni - 'Mowgli-land'; straddles MP–Maharashtra. |
+| Bori-Satpura | National Park + Tiger Reserve | Tawa · Denwa | Indian Giant Squirrel, Bengal Tiger, Indian Leopard | Core of the Pachmarhi Biosphere Reserve. |
+| Panna | National Park + Tiger Reserve | Ken | Gharial, Bengal Tiger, Chinkara | UNESCO Biosphere Reserve; site of the Ken–Betwa river link. |
+| Sanjay Dubri | National Park + Tiger Reserve | Gopad · Banas | Bengal Tiger, Indian Leopard, Gaur | Contiguous with Guru Ghasidas NP (Chhattisgarh). |
+| Kuno | National Park + Tiger Reserve | Kuno | Cheetah (African), Striped Hyena, Indian Leopard | Project Cheetah — African cheetah reintroduction. |
+| Madhav | National Park + Tiger Reserve | Sindh (nearby) | Chinkara, Nilgai, Indian Leopard | Madhav Tiger Reserve (notified 2025); Sakhya Sagar lake. |
+| Van Vihar | National Park | — | Bengal Tiger, Indian Leopard | NP-cum-zoo beside Bhoj Wetland (Ramsar site, adjacent). |
+| Mandla Plant Fossils National Park | National Park | — |  | ~65-million-year-old fossilised tree trunks and Gondwana flora |
+| Ratapani | Tiger Reserve | — | Bengal Tiger, Indian Leopard | Tiger Reserve (2024); abuts Bhimbetka (Cultural WHS). |
+| Veerangana Durgavati | Tiger Reserve | — | Bengal Tiger, Indian Wolf | Notified 2023 from Nauradehi WLS; planned Panna–corridor link. |
+
+Maharashtra (7 parks/reserves, 4 wetlands)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Tadoba | National Park + Tiger Reserve | Andhari · Tadoba lake | Bengal Tiger, Dhole, Indian Leopard, Sloth Bear | Maharashtra's oldest national park; flagship Tiger Reserve; Mohrali Kolsa Ranges |
+| Gugamal | National Park + Tiger Reserve | Sipna | Bengal Tiger, Gaur, Sloth Bear | Core of Melghat Tiger Reserve (one of the first, 1973-74). |
+| Navegaon | National Park + Tiger Reserve | Navegaon lake | Bengal Tiger, Dhole, Indian Leopard | Part of Navegaon–Nagzira Tiger Reserve; rich waterbird life. |
+| Pench (Maharashtra) | National Park + Tiger Reserve | Pench | Bengal Tiger, Dhole, Indian Leopard | Maharashtra side of Pench; 'Mowgli' country. |
+| Sanjay Gandhi (Borivali) | National Park | Tulsi & Vihar lakes | Indian Leopard, Sambar, Chital | Urban national park; Kanheri Caves; high leopard density. |
+| Chandoli | National Park + Tiger Reserve | Warna · Vasant Sagar | Bengal Tiger, Indian Giant Squirrel, Indian Pangolin | Part of Sahyadri Tiger Reserve; Western Ghats biodiversity. |
+| Bor | Tiger Reserve | — | Bengal Tiger, Indian Leopard | Among India's smallest tiger reserves; Tadoba–Melghat corridor. |
+
+Manipur (2 parks/reserves, 1 wetland)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Keibul Lamjao | National Park | Loktak Lake | Sangai (Brow-antlered Deer), Hog Deer, Asian Golden Cat | World's only floating national park; last refuge of the Sangai (brow-antlered deer), Manipur's state animal. |
+| Shirui National Park | National Park | — | Shirui Lily, Blyth's Tragopan | Sole natural habitat of the Shirui Lily (Lilium mackliniae), Manipur's state flower; established 1982. |
+
+Meghalaya (2 parks/reserves)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Nokrek | National Park | Simsang (Someshwari) · Rongbang Dare Waterfall | Red Panda, Stump Tailed Macaque, Hoolock Gibbon, Asian Elephant | Nokrek Biosphere Reserve; wild citrus (Citrus indica) gene sanctuary; red panda. |
+| Balphakram | National Park | Simsang · Mahadeo · Goneshwar | Asian Elephant, Gaur (Indian Bison), Red Panda, Asian Golden Cat | 'Land of perpetual winds/spirits'; deep canyon; Garo cultural landscape. |
+
+Mizoram (3 parks/reserves, 1 wetland)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Murlen | National Park | Tuivai tributaries | Hoolock Gibbon, Clouded Leopard, Serow | Near the Myanmar border; rich orchid & primate diversity. |
+| Phawngpui (Blue Mountain) | National Park | Chhimtuipui (nearby) | Blyth's Tragopan, Clouded Leopard, Serow, Hume's Pheasant | Highest peak in Mizoram; sacred 'Blue Mountain'. |
+| Dampa | Tiger Reserve | — | Bengal Tiger, Clouded Leopard | Mizoram's only tiger reserve; Bangladesh border; western Mizoram. |
+
+Nagaland (1 park/reserve)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Intanki (Intangki) | National Park | Diphu · Barak tributaries | Hoolock Gibbon, Asian Elephant, Golden Langur, Hornbill | Nagaland's only national park; hoolock gibbon habitat. |
+
+Odisha (3 parks/reserves, 6 wetlands)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Similipal | National Park + Tiger Reserve | Budhabalanga · Khairi | Bengal Tiger, Mugger Crocodile, Asian Elephant, Indian Pangolin | Barehipani Falls; Famed for melanistic (black) tigers. |
+| Bhitarkanika | National Park | Brahmani · Baitarani delta | Saltwater Crocodile, Olive Ridley Turtle, King Cobra, Red-Naped Ibis | Saltwater crocodile stronghold; adjoins Gahirmata (olive ridley) beach; Ramsar site. |
+| Satkosia | Tiger Reserve | — | Bengal Tiger, Gharial, Mugger Crocodile | Tiger Reserve on the Mahanadi gorge; gharial & crocodile conservation. |
+
+Punjab (0 parks/reserves, 6 wetlands)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+
+Rajasthan (7 parks/reserves, 5 wetlands)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Ranthambore | National Park + Tiger Reserve | Chambal · Banas | Bengal Tiger, Indian Leopard, Marsh Crocodile | Flagship Tiger Reserve; Ranthambore Fort; where Aravalli meets Vindhya. |
+| Keoladeo (Ghana/Bharatpur) | National Park | Gambhir · Banganga (man-made) | Siberian Crane, Sarus Crane, Painted Stork | UNESCO WHS & Ramsar; Renowned wintering ground for migratory birds |
+| Sariska | National Park + Tiger Reserve | Ruparel (ephemeral) | Bengal Tiger, Indian Leopard, Striped Hyena | Tiger Reserve; first successful tiger reintroduction after local extinction (2008). |
+| Desert | National Park | Thar (ephemeral) | Great Indian Bustard, Chinkara, Desert Fox | Thar Desert; last stronghold of the Great Indian Bustard. |
+| Mukundra Hills (Darrah) | National Park + Tiger Reserve | Chambal | Bengal Tiger, Indian Leopard, Chinkara | Tiger Reserve on the Chambal; Vindhyan hills near Kota. |
+| Ramgarh Vishdhari | Tiger Reserve | — | Bengal Tiger, Indian Leopard | Tiger Reserve (2021); corridor between Ranthambore & Mukundra. |
+| Kailadevi / Dholpur-Karauli | Tiger Reserve | — | Bengal Tiger, Indian Wolf | Rajasthan's newest tiger reserve (2023); Chambal ravines. |
+
+Sikkim (1 park/reserve, 1 wetland)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Khangchendzonga | National Park | Teesta · Rangit (glacial) | Snow Leopard, Red Panda, Dhole (Asian Wild Dog), Himalayan Tahr | India's first 'Mixed' UNESCO WHS; Biosphere Reserve; Kanchenjunga (world's 3rd-highest peak). |
+
+Tamil Nadu (8 parks/reserves, 20 wetlands)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Mudumalai | National Park + Tiger Reserve | Moyar | Bengal Tiger, Asian Elephant, Indian Leopard, White Rumped / Indian Vulture | Nilgiri Biosphere Reserve; tri-junction of TN, Karnataka & Kerala. |
+| Mukurthi | National Park | Pykara · Kunda | Nilgiri Tahr, Nilgiri Marten, Nilgiri Langur | Nilgiri Tahr habitat; Nilgiri Biosphere Reserve. |
+| Indira Gandhi (Anamalai) | National Park + Tiger Reserve | Aliyar · Parambikulam | Bengal Tiger, Lion-tailed Macaque, Asian Elephant | Anamalai Tiger Reserve; southern Western Ghats. |
+| Guindy | National Park | Adyar (nearby) | Blackbuck, Indian Star Tortoise, Chital | Among India's smallest national parks; inside Chennai city. |
+| Gulf of Mannar Marine | National Park | Marine (21 islands) | Dugong, Indo-Pacific Bottlenose Dolphin, Hawksbill Turtle, Green Sea Turtle | India's first Marine Biosphere Reserve; Dhanushkodi |
+| Kalakad-Mundanthurai | Tiger Reserve | — | Bengal Tiger, Lion-tailed Macaque | Southernmost tiger reserve; 'river sanctuary' of the southern Western Ghats. |
+| Sathyamangalam | Tiger Reserve | — | Bengal Tiger, Asian Elephant | Key corridor linking the Western & Eastern Ghats. |
+| Srivilliputhur-Megamalai | Tiger Reserve | — | Bengal Tiger, Grizzled Giant Squirrel | High Wavy Mountains; Palakkad & Palghat Gap |
+
+Telangana (5 parks/reserves)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Mahavir Harina Vanasthali | National Park | Hyderabad outskirts | Blackbuck, Chinkara, Indian Leopard | Deer park on Hyderabad's western edge. |
+| Mrugavani | National Park | Hyderabad outskirts | Indian Rock Python, Chital, Indian Civet | Small reserve-forest park near Hyderabad. |
+| Kasu Brahmananda Reddy (KBR) | National Park | Hyderabad (Jubilee Hills) | Indian Pangolin, Indian Rock Python, Indian Peafowl | Green lung of Hyderabad; high urban biodiversity. |
+| Amrabad | Tiger Reserve | — | Bengal Tiger, Indian Leopard | Carved from NSTR after 2014; Nallamala forest; Chenchu tribe. |
+| Kawal | Tiger Reserve | — | Bengal Tiger, Indian Leopard | Tiger Reserve in the Godavari basin; northern Telangana. |
+
+Tripura (2 parks/reserves, 1 wetland)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Clouded Leopard (Sipahijala) | National Park | Sipahijala | Clouded Leopard, Phayre's Langur, Hoolock Gibbon | Named for the clouded leopard; spectacled (Phayre's) langur. |
+| Bison (Rajbari) | National Park | Trishna | Gaur (Indian Bison), Phayre's Langur, Hoolock Gibbon | Named for the Indian bison (gaur); southern Tripura. |
+
+Uttar Pradesh (4 parks/reserves, 13 wetlands)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Dudhwa | National Park + Tiger Reserve | Suheli · Mohana; Sharda nearby | Bengal Tiger, Swamp Deer (Barasingha), Indian Rhinoceros | Dudhwa Tiger Reserve; swamp deer (barasingha) & reintroduced one-horned rhino. |
+| Pilibhit | Tiger Reserve | — | Bengal Tiger, Swamp Deer (Barasingha) | Tiger Reserve; TX2 award (2018) for doubling its tigers; Terai. |
+| Amangarh | Tiger Reserve | — | Bengal Tiger, Asian Elephant | Buffer of Corbett Tiger Reserve on the UP side (Bijnor). |
+| Ranipur | Tiger Reserve | — | Bengal Tiger, Indian Leopard | UP's newest tiger reserve (2022); Bundelkhand dry forest. |
+
+Uttarakhand (6 parks/reserves, 1 wetland)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Jim Corbett | National Park + Tiger Reserve | Ramganga · Kosi | Bengal Tiger, Asian Elephant, Gharial | India's first national park (1936); launch site of Project Tiger (1973). |
+| Rajaji | National Park + Tiger Reserve | Ganga · Song | Asian Elephant, Bengal Tiger, Indian Leopard | Rajaji Tiger Reserve; elephant stronghold at the Ganga's exit to the plains. |
+| Valley of Flowers | National Park | Pushpawati | Snow Leopard, Himalayan Musk Deer, Blue Sheep, Asian Black Bear, Sambar Stag | UNESCO WHS; alpine floral meadows within the Nanda Devi Biosphere Reserve. |
+| Nanda Devi | National Park | Rishi Ganga | Snow Leopard, Himalayan Tahr, Blue Sheep | UNESCO WHS & Biosphere Reserve; encloses India's 2nd-highest peak. |
+| Gangotri | National Park | Bhagirathi | Snow Leopard, Blue Sheep, Himalayan Monal | Encloses the Gangotri glacier — source of the Bhagirathi (Ganga). |
+| Govind (Pashu Vihar) | National Park | Tons · Supin | Snow Leopard, Himalayan Musk Deer, Western Tragopan | Snow leopard habitat in the upper Tons (Yamuna) valley. |
+
+West Bengal (6 parks/reserves, 2 wetlands)
+
+| Name | Type | River(s) | Key species | Note |
+| --- | --- | --- | --- | --- |
+| Sundarbans | National Park + Tiger Reserve | Ganga–Brahmaputra delta (Matla, Bidya) | Bengal Tiger, Saltwater Crocodile, Gangetic Dolphin | Royal Bengal Tiger; UNESCO World Heritage Site, Biosphere Reserve & Ramsar site. |
+| Gorumara | National Park | Murti · Raidak · Jaldhaka | Indian Rhinoceros, Asian Elephant, Sloth, Gaur | One-horned rhino habitat in the Dooars. |
+| Neora Valley | National Park | Neora | Red Panda, Clouded Leopard, Himalayan Black Bear | Pristine eastern-Himalayan forest; red panda habitat. |
+| Singalila | National Park | Rammam · Sirikhola | Red Panda, Clouded Leopard, Satyr Tragopan | Sandakphu, the highest point in West Bengal; red panda; Kanchenjunga views. |
+| Buxa | National Park + Tiger Reserve | Raidak · Jayanti | Bengal Tiger, Asian Elephant, Gaur, Giant Squirrel, Clouded Leopard | Buxa Tiger Reserve; elephant corridor to Bhutan. |
+| Jaldapara | National Park | Torsa · Kaljani | Indian Rhinoceros, Asian Elephant, Bengal Florican | Major one-horned rhino stronghold (highest after Kaziranga) in the Dooars. |

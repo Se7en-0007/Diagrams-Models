@@ -6789,6 +6789,41 @@ window.WORLD_MAP_DATA = (function () {
       "Subject to the Nor'wester: Warm, dry föhn wind that descends off the Southern Alps"
     ],
     "upscNotes": "Braided river alluvial geomorphology; Föhn wind climatic effect; dairy and wool agriculture."
+  },
+  {
+    "id": "peak-mount-cook",
+    "name": "Mount Cook (Aoraki)",
+    "category": "peak",
+    "continent": "Australia & Oceania",
+    "coords": [
+      170.1418,
+      -43.595
+    ],
+    "description": "Highest mountain peak in New Zealand (~3,724 m), located in the Southern Alps. Prominent glaciated horn flanked by Tasman and Hooker Glaciers.",
+    "keyFacts": [
+      "Location: South Island, New Zealand (Southern Alps)",
+      "Elevation: 3,724 m (12,218 ft) — highest point in New Zealand and Australasia",
+      "Tectonic Origin: Tectonic collision along the Alpine Fault (Pacific Plate colliding with Indo-Australian Plate)",
+      "Surrounded by vast valley glaciers including Tasman Glacier (NZ's longest)"
+    ],
+    "upscNotes": "Alpine Fault transform plate boundary; glacial cirques and horn morphology; high-latitude glaciation in Southern Alps."
+  },
+  {
+    "id": "peak-mount-kosciuszko",
+    "name": "Mount Kosciuszko",
+    "category": "peak",
+    "continent": "Australia & Oceania",
+    "coords": [
+      148.2633,
+      -36.4559
+    ],
+    "description": "Highest peak on the Australian mainland (~2,228 m) in the Snowy Mountains.",
+    "keyFacts": [
+      "Location: New South Wales, Australia (Snowy Mountains, Great Dividing Range)",
+      "Elevation: 2,228 m (7,310 ft) — highest mountain in mainland Australia",
+      "Geology: Ancient Paleozoic granitic plateau uplifted by continental rifting"
+    ],
+    "upscNotes": "Highest mainland Australian peak (Seven Summits Bass list); periglacial landforms."
   }
 ];
 

@@ -29,3 +29,14 @@ node world-map/tests/wave-orientation-test.cjs
 ```
 
 These checks validate structure and selected behaviour, not the factual completeness or accuracy of every inherited note.
+
+## Ramsar Notes Update — 29 October 2026
+
+All 103 sites in the October 2026 inventory now have site-specific notes in the Ramsar map, with 97 shared species profiles carrying global IUCN categories, assessment references and distinguishing ecology. The full source document is available at `world-map/notes/India_103_Ramsar_Sites_Notes.md`; the map offers a complete-document download and per-site exports including associated species. This update does not claim complete coverage of the other 81 themes or add an authored Ramsar quiz bank.
+
+To regenerate the web data after editing the Markdown document:
+
+```sh
+python3 tools/compile_ramsar_notes.py
+node world-map/tests/ramsar-notes-test.cjs
+```

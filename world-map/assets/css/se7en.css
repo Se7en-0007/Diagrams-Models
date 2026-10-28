@@ -11,3 +11,5 @@ body {text-transform:capitalize}
 .eyebrow,.overline,.currents-legend-title,.list-header,.quiz-step-tag {text-transform:capitalize!important;letter-spacing:.7px!important}
 .clean-map-label {font-size:11px;font-weight:650;padding:5px 8px;color:var(--ink2)}
 .se7en-map-heading p {text-transform:capitalize}
+.ramsar-notes-access{margin-top:12px}.ramsar-notes-access[hidden]{display:none}.ramsar-notes-access a{display:block;padding:9px 10px;border:1px solid var(--border2);border-radius:7px;color:var(--accent2);font-size:11px;text-decoration:none;background:var(--panel)}
+.site-species-profiles{margin-top:22px;text-transform:none}.site-species-profiles h2{font-size:14px;color:var(--ink)}.species-study{border:1px solid var(--border);border-radius:7px;margin:9px 0;padding:10px 12px;text-transform:none}.species-study summary{cursor:pointer;font-size:12px;font-weight:650;color:var(--ink);line-height:1.5}.species-study summary span{float:right;font-size:10px;color:var(--accent2);background:var(--panel2);padding:1px 5px;border-radius:4px}.species-study p{font-size:12px;line-height:1.75;color:var(--ink2);margin:9px 0}.species-study a{font-size:11px;color:var(--accent2)}

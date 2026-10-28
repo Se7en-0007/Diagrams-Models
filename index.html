@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap">
 <!-- Stylesheet -->
 <link rel="stylesheet" href="world-map/assets/css/app.css?v=5">
-<link rel="stylesheet" href="world-map/assets/css/se7en.css?v=2">
+<link rel="stylesheet" href="world-map/assets/css/se7en.css?v=3">
 </head>
 <body>
 <div id="app">
@@ -39,7 +39,7 @@
 
   <div class="app-body">
     <!-- Side Panel -->
-    <aside class="side-panel" id="sidePanel"><section class="se7en-library" aria-label="Subject and thematic map library"><div class="eyebrow">A World Of Connections</div><label for="se7enSubject">Subject</label><select id="se7enSubject"><option value="all">All Subjects</option></select><label for="se7enTheme">Thematic Map</label><select id="se7enTheme"><option value="all">World Overview</option></select><p class="theme-description" id="themeDescription">Choose a subject and map to explore its places, relationships and notes.</p></section>
+    <aside class="side-panel" id="sidePanel"><section class="se7en-library" aria-label="Subject and thematic map library"><div class="eyebrow">A World Of Connections</div><label for="se7enSubject">Subject</label><select id="se7enSubject"><option value="all">All Subjects</option></select><label for="se7enTheme">Thematic Map</label><select id="se7enTheme"><option value="all">World Overview</option></select><p class="theme-description" id="themeDescription">Choose a subject and map to explore its places, relationships and notes.</p><div id="ramsarNotesAccess" class="ramsar-notes-access" hidden><a href="world-map/notes/India_103_Ramsar_Sites_Notes.md" download>Download All 103 Ramsar Notes (.md)</a></div></section>
       <!-- Kinds Multi-Select Grouped Dropdown placed ABOVE Browse, Practice, Game -->
       <div class="sidebar-kinds-header-bar">
         <div class="sidebar-dropdown-wrapper" id="layerDropdownWrapper">
@@ -566,6 +566,7 @@
 <script src="world-map/data/ocean-currents.js?v=7"></script>
 <script src="world-map/data/local-winds.js?v=7"></script>
 <script src="world-map/data/se7en-content.js?v=1"></script>
+<script src="world-map/data/ramsar-notes.js?v=1"></script>
 <script src="world-map/assets/js/data-integrity.js?v=8"></script>
 <script src="world-map/assets/js/vector-map.js?v=17"></script>
 <script src="world-map/assets/js/entity-panel.js?v=7"></script>
@@ -575,7 +576,7 @@
 <script src="world-map/assets/js/progress.js?v=7"></script>
 <script src="world-map/assets/js/navigation.js?v=7"></script>
 <script src="world-map/data/place-photos.js?v=2"></script>
-<script src="world-map/assets/js/se7en.js?v=2"></script>
+<script src="world-map/assets/js/se7en.js?v=3"></script>
 <script src="world-map/assets/js/app.js?v=8"></script>
 </body>
 </html>
